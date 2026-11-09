@@ -27,7 +27,6 @@
                     colors: {
                         navy: '#0E1D31',
                         navySoft: '#17314A',
-                        amber: '#FBBF24',
                         page: '#F7F9FC',
                     }
                 }
@@ -50,11 +49,36 @@
             min-height: 100%;
         }
 
+        html.sb-scroll-locked,
+        body.sb-scroll-locked {
+            overflow: hidden !important;
+            overscroll-behavior: none !important;
+        }
+
         body {
             font-family: 'Inter', sans-serif;
             background: #CBD5E1;
             color: #111827;
         }
+
+        /* Safety layer: Pastikan modal & overlay tertutup tidak pernah membekukan klik halaman */
+        .sb-overlay-backdrop {
+            pointer-events: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+        }
+        .sb-overlay-backdrop.pointer-events-auto,
+        .sb-overlay-backdrop.active-modal {
+            pointer-events: auto !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+        .pointer-events-none { pointer-events: none !important; }
+        .pointer-events-auto { pointer-events: auto !important; }
+        .invisible { visibility: hidden !important; }
+        .visible { visibility: visible !important; }
+        .opacity-0 { opacity: 0 !important; }
+        .opacity-100 { opacity: 1 !important; }
 
         a { text-decoration: none; }
         button { font-family: inherit; cursor: pointer; }
@@ -67,15 +91,33 @@
             margin: 0 auto;
             position: relative;
             overflow-x: hidden;
-            background: #F7F9FC;
+            background-color: #F7F9FC;
+            background-image:
+                radial-gradient(circle at 92% 4%, rgba(255, 255, 255, 0.10), transparent 27%),
+                radial-gradient(circle at 0% 42%, rgba(75, 110, 140, 0.20), transparent 32%),
+                radial-gradient(circle at 100% 58%, rgba(112, 143, 164, 0.15), transparent 30%),
+                linear-gradient(
+                    180deg,
+                    #0E1D31 0%,
+                    #0E1D31 24%,
+                    #11263D 38%,
+                    #17334C 52%,
+                    #294D65 65%,
+                    #5F7C8E 77%,
+                    #A7BAC6 87%,
+                    #D9E3E9 94%,
+                    #EDF2F6 97%,
+                    #F7F9FC 100%
+                );
+            background-size: 100% 15cm;
+            background-repeat: no-repeat;
             box-shadow: 0 0 50px rgba(15, 23, 42, 0.20);
             padding-bottom: 76px;
         }
 
         /* =====================================================
-           STANDARISASI GRADIEN BLUR UNIFORM SAYABANTU
-           Disamaratakan, halus tanpa garis tegas/jelas,
-           fading natural ke #F7F9FC persis tampilan semula.
+           STANDARISASI TOP AREA SAYABANTU
+           Mengalir natural di atas gradien 15cm mobile-app
         ====================================================== */
         .admin-top-area,
         .pesanan-top-area,
@@ -86,23 +128,13 @@
             position: relative;
             overflow: visible;
             color: white;
-            background:
-                radial-gradient(circle at 92% 4%, rgba(255, 255, 255, 0.10), transparent 27%),
-                radial-gradient(circle at 0% 42%, rgba(75, 110, 140, 0.20), transparent 32%),
-                radial-gradient(circle at 100% 58%, rgba(112, 143, 164, 0.15), transparent 30%),
-                linear-gradient(
-                    180deg,
-                    #0E1D31 0%,
-                    #0E1D31 22%,
-                    #11263D 36%,
-                    #17334C 50%,
-                    #294D65 64%,
-                    #5F7C8E 76%,
-                    #A7BAC6 86%,
-                    #D9E3E9 94%,
-                    #F7F9FC 100%
-                );
-            padding-bottom: 24px;
+            padding-bottom: 0;
+            background: transparent;
+        }
+
+        .admin-top-area > * {
+            position: relative;
+            z-index: 1;
         }
 
         /* Dekorasi Lingkaran Header */
@@ -197,8 +229,8 @@
         .admin-content-area {
             position: relative;
             z-index: 20;
-            padding: 8px 20px 96px;
-            margin-top: -32px; /* konten masuk sedikit ke ekor gradient */
+            padding: 0 20px 96px;
+            margin-top: 0;
         }
 
         /* Stat cards di dashboard */
@@ -286,7 +318,7 @@
             transform: translateX(-50%);
             width: 100%;
             max-width: 430px;
-            z-index: 100;
+            z-index: 40;
             padding: 6px 10px 8px;
             background: rgba(255, 255, 255, 0.97);
             backdrop-filter: blur(18px);
@@ -338,6 +370,36 @@
     </style>
 
     @stack('styles')
+
+    {{-- AUTO-PURGE SCRIPT TO ENSURE CLEAN ZERO START --}}
+    <script>
+        (function autoCleanDummyData() {
+            try {
+                const CLEAN_KEY = "sb_zero_reset_v8";
+                if (!localStorage.getItem(CLEAN_KEY)) {
+                    localStorage.removeItem("sb_customer_orders");
+                    localStorage.removeItem("sb_active_order");
+                    localStorage.removeItem("sb_mitra_orders");
+                    localStorage.removeItem("sb_mitra_bids");
+                    localStorage.removeItem("sb_complaints");
+                    localStorage.removeItem("sb_customer_pembayaran_selesai");
+                    localStorage.setItem(CLEAN_KEY, "true");
+                }
+            } catch(e) {}
+        })();
+    </script>
+
+    {{-- =========================================================
+         INSTANT SPA NAVIGATION ENGINE ADMIN (ZERO LOADING & ZERO RELOAD)
+         - Bebas reload & tanpa loading spinner browser
+         - Hanya #sbAdminContent yang diganti, header/drawer/modal/bottom nav
+           tetap hidup sehingga tidak ada kedip saat pindah fitur
+         - In-memory DOM cache untuk transisi instan
+         - Prefetch seluruh fitur admin di latar belakang
+         Implementasi ada di public/js/admin-spa.js
+    ========================================================== --}}
+    <script src="{{ asset('js/admin-spa.js') }}" data-layout-script="true"></script>
+
 </head>
 
 <body>
@@ -352,35 +414,40 @@
         {{-- Modular Uniform Admin Header: Burger | SayaBantu.com | Bell | Avatar --}}
         @include('layouts.partials.admin-header')
 
+        {{-- Mulai area yang diganti saat pindah fitur (tanpa reload) --}}
+        <div id="sbAdminContent">
+
         {{-- Sub-header: Tombol Kembali di bawah burger menu, Judul & Sub-judul --}}
         @php
             $backUrl = trim($__env->yieldContent('back-url'));
             $backText = trim($__env->yieldContent('back-text')) ?: 'Kembali ke Dashboard';
             $pageTitle = trim($__env->yieldContent('page-title'));
             $pageSubtitle = trim($__env->yieldContent('page-subtitle'));
+            $headerGapStyle = trim($__env->yieldContent('header-gap-style')) ?: '0.6cm';
         @endphp
 
         @if($backUrl !== '' || $pageTitle !== '')
-            <div class="px-5 pt-3 pb-1 relative z-10">
-                @if($backUrl !== '')
+            <div class="px-5 pb-1 relative z-10" style="padding-top: {{ $headerGapStyle }};">
+                @if($backUrl !== '' && !str_contains($backUrl, 'dashboard') && !str_contains(strtolower($backText), 'dashboard') && !str_contains(strtolower($backText), 'beranda'))
                     <a
                         href="{{ $backUrl }}"
-                        class="inline-flex items-center gap-1.5 text-[10px] font-medium text-white/75 hover:text-white transition-colors mb-2"
+                        onclick="handleAdminBackNavigation(event, '{{ $backUrl }}')"
+                        class="inline-flex items-center gap-1.5 text-[10px] font-medium text-white/75 hover:text-white transition-colors mb-2 cursor-pointer"
                     >
                         <i class="fa-solid fa-arrow-left text-[9px]"></i>
-                        <span>{{ $backText }}</span>
+                        <span>{!! $backText !!}</span>
                     </a>
                 @endif
 
                 @if($pageTitle !== '')
-                    <div class="flex items-center justify-between">
-                        <div>
+                    <div class="flex items-center justify-between gap-3">
+                        <div class="min-w-0 pr-1">
                             <h2 class="text-[20px] font-bold tracking-tight text-white leading-tight">
-                                {{ $pageTitle }}
+                                {!! $pageTitle !!}
                             </h2>
                             @if($pageSubtitle !== '')
                                 <p class="text-[10px] text-white/70 mt-0.5 leading-snug">
-                                    {{ $pageSubtitle }}
+                                    {!! $pageSubtitle !!}
                                 </p>
                             @endif
                         </div>
@@ -393,37 +460,39 @@
         @yield('hero')
         @yield('page-hero')
         @yield('page-top')
-    </div>
 
     {{-- 2. UNIFIED CONTENT AREA (SATU WRAPPER UTAMA) --}}
     <main class="admin-content-area">
         @yield('content')
     </main>
 
+        </div>{{-- /#sbAdminContent --}}
+    </div>
+
 </div>
 
-{{-- Navigasi Bawah --}}
+{{-- Navigasi Bawah (Persis 4 Menu: Dashboard, Pengguna, Suruhan, Pembayaran) --}}
 @if(trim($__env->yieldContent('hide-bottom-nav')) !== 'true')
 <nav class="bottom-navigation">
     <div class="bottom-navigation-inner">
-        <a href="{{ route('admin.dashboard') }}" class="bottom-nav-item {{ request()->routeIs('admin.dashboard') ? 'nav-active' : '' }}">
+        <a href="{{ route('admin.dashboard') }}" onclick="event.preventDefault(); if (typeof window.adminSpaNavigateTo === 'function') { window.adminSpaNavigateTo('{{ route('admin.dashboard') }}'); } else { window.location.href = '{{ route('admin.dashboard') }}'; }" class="bottom-nav-item {{ request()->routeIs('admin.dashboard') ? 'nav-active' : '' }}" title="Dashboard Admin">
             <i class="fa-solid fa-house"></i>
-            <span>Home</span>
+            <span>Dashboard</span>
         </a>
 
-        <a href="{{ route('admin.pesanan') }}" class="bottom-nav-item {{ request()->routeIs('admin.pesanan*') ? 'nav-active' : '' }}">
-            <i class="fa-solid fa-file-lines"></i>
-            <span>Pesanan</span>
+        <a href="{{ route('admin.pengguna') }}" onclick="event.preventDefault(); if (typeof window.adminSpaNavigateTo === 'function') { window.adminSpaNavigateTo('{{ route('admin.pengguna') }}'); } else { window.location.href = '{{ route('admin.pengguna') }}'; }" class="bottom-nav-item {{ (request()->routeIs('admin.pengguna*') || request()->routeIs('admin.mitra*')) ? 'nav-active' : '' }}" title="Kelola Pengguna">
+            <i class="fa-solid fa-users"></i>
+            <span>Pengguna</span>
         </a>
 
-        <a href="{{ route('admin.pembayaran') }}" class="bottom-nav-item {{ request()->routeIs('admin.pembayaran*') ? 'nav-active' : '' }}">
+        <a href="{{ route('admin.pesanan') }}" onclick="event.preventDefault(); if (typeof window.adminSpaNavigateTo === 'function') { window.adminSpaNavigateTo('{{ route('admin.pesanan') }}'); } else { window.location.href = '{{ route('admin.pesanan') }}'; }" class="bottom-nav-item {{ (request()->routeIs('admin.pesanan*') || request()->routeIs('admin.suruhan*')) ? 'nav-active' : '' }}" title="Suruhan Layanan">
+            <i class="fa-solid fa-clipboard-list"></i>
+            <span>Suruhan</span>
+        </a>
+
+        <a href="{{ route('admin.pembayaran') }}" onclick="event.preventDefault(); if (typeof window.adminSpaNavigateTo === 'function') { window.adminSpaNavigateTo('{{ route('admin.pembayaran') }}'); } else { window.location.href = '{{ route('admin.pembayaran') }}'; }" class="bottom-nav-item {{ request()->routeIs('admin.pembayaran*') ? 'nav-active' : '' }}" title="Data Pembayaran">
             <i class="fa-solid fa-credit-card"></i>
-            <span>Bayar</span>
-        </a>
-
-        <a href="{{ route('admin.profile') }}" class="bottom-nav-item {{ request()->routeIs('admin.profile*') ? 'nav-active' : '' }}">
-            <i class="fa-solid fa-user"></i>
-            <span>Profil</span>
+            <span>Pembayaran</span>
         </a>
     </div>
 </nav>
@@ -431,6 +500,10 @@
 
 {{-- MODALS & INTERACTIVE OVERLAYS --}}
 @include('layouts.partials.admin-header-modals')
+<div id="adminDynamicModals">
+    @yield('modals')
+    @stack('modals')
+</div>
 
 {{-- REALTIME CLIENT SCRIPT --}}
 <script src="{{ asset('js/admin-realtime.js') }}"></script>

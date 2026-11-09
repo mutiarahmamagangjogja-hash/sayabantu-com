@@ -47,12 +47,11 @@
 
         <div class="mt-6 flex flex-col gap-2">
             <a 
-                id="whatsappConfirmationLink"
-                href="https://wa.me/6281234567890?text=Halo%20Admin%20SayaBantu,%20saya%20sudah%20mengajukan%20suruhan%20baru" 
-                target="_blank"
-                class="w-full py-3 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-md flex items-center justify-center gap-2"
+                id="orderConfirmationLink"
+                href="{{ route('customer.pesanan') }}" 
+                class="w-full py-3 px-4 rounded-2xl bg-[#0E1D31] hover:bg-[#173B67] text-white text-xs font-bold transition-all shadow-md flex items-center justify-center gap-2"
             >
-                <i class="fa-brands fa-whatsapp text-sm"></i> Konfirmasi via WhatsApp
+                <i class="fa-solid fa-list-check text-sm"></i> Pantau di Menu Pesanan
             </a>
             
             <button 
@@ -94,7 +93,7 @@
 
             <div class="grid grid-cols-2 gap-2">
                 <div>
-                    <label class="block text-[11px] font-semibold text-slate-700 mb-1">Nomor WhatsApp</label>
+                    <label class="block text-[11px] font-semibold text-slate-700 mb-1">Nomor Handphone</label>
                     <input type="tel" required placeholder="0812-xxxx-xxxx" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:border-sky-500 transition-colors">
                 </div>
                 <div>
@@ -118,11 +117,9 @@
                 <select required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:border-sky-500 transition-colors">
                     <option value="">Pilih Kategori Utama</option>
                     <option value="Cleaning Service">Cleaning Service (Kebersihan Rumah)</option>
-                    <option value="Teknisi AC & Listrik">Teknisi AC, Elektronik & Listrik</option>
                     <option value="Angkut Barang / Pindahan">Angkut Barang & Pindahan</option>
                     <option value="Antar / Kurir Kilat">Antar / Kurir Kilat</option>
-                    <option value="Perawatan Hewan">Perawatan Hewan Peliharaan</option>
-                    <option value="Tukang Serbaguna Lainnya">Tukang Serbaguna Lainnya</option>
+                    <option value="Suruhan Harian">Suruhan Harian</option>
                 </select>
             </div>
 
@@ -203,13 +200,6 @@
             </button>
         </div>
         <div class="mt-4 space-y-3 text-xs">
-            <div class="p-3 rounded-xl bg-sky-50 border border-sky-100 space-y-1">
-                <div class="flex items-center justify-between">
-                    <strong class="text-sky-900">Promo Pengguna Baru</strong>
-                    <span class="text-[9px] text-sky-600">Baru</span>
-                </div>
-                <p class="text-slate-600 text-[11px]">Dapatkan diskon potongan Rp 20.000 untuk suruhan pertama Anda dengan kode: <strong>SAYABANTU20</strong></p>
-            </div>
             <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
                 <strong class="text-slate-800">Layanan Aktif 24 Jam</strong>
                 <p class="text-slate-500 text-[11px]">Mitra kami siaga melayani pembersihan darurat dan angkut barang setiap hari pukul 07:00 - 24:00 WIB.</p>
@@ -324,7 +314,7 @@
             btn.disabled = false;
             btn.innerHTML = '<i class="fa-solid fa-paper-plane text-xs"></i> Kirim Pendaftaran';
             closeModal('modalDaftarMitra');
-            showCustomerToast('Pendaftaran Terkirim', 'Terima kasih! Tim SayaBantu akan menghubungi Anda melalui WhatsApp dalam 1x24 jam untuk verifikasi.', 'success');
+            showCustomerToast('Pendaftaran Terkirim', 'Terima kasih! Tim SayaBantu akan memverifikasi pendaftaran Anda dalam 1x24 jam.', 'success');
             document.getElementById('formDaftarMitra').reset();
         }, 1200);
     }

@@ -5,6 +5,74 @@
 ========================================================================= */
 
 /* =====================================================
+   MODAL & BACKDROP OVERLAY SAFETY (ANTI-SCREEN FREEZE)
+   Memastikan modal tertutup TIDAK PERNAH memblokir klik layar
+===================================================== */
+/* Dasar: semua overlay tersembunyi kecuali yang membawa penanda .is-open.
+   Penanda .is-open adalah satu-satunya sumber status terbuka sehingga tidak
+   terjadi perang spesifisitas dengan utility Tailwind (.invisible, .opacity-0,
+   .pointer-events-none) yang juga memakai !important. */
+.sb-overlay-backdrop:not(.is-open) {
+    pointer-events: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    transition: opacity 0.22s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.22s;
+}
+
+.sb-overlay-backdrop.is-open {
+    pointer-events: auto !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Modal yang dibuka lewat kelas Tailwind tetap benar-benar terlihat.
+   Dibatasi hanya untuk modal milik aplikasi supaya tidak mengganggu
+   elemen grid lain yang memakai .flex. */
+body > .fixed.inset-0.flex:not(.hidden):not(.sb-overlay-backdrop) {
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+
+.sb-backdrop-click {
+    pointer-events: auto;
+}
+
+/* =====================================================
+   GRADIENT STANDARISASI MITRA TOP AREA (ANTI-COLOR LOSS)
+===================================================== */
+.mitra-top-area {
+    position: relative;
+    overflow: visible;
+    color: white;
+    min-height: 15cm;
+    height: 15cm;
+    padding-bottom: 0;
+    background:
+        radial-gradient(circle at 92% 4%, rgba(255,255,255,0.10), transparent 27%),
+        radial-gradient(circle at 0% 42%, rgba(75,110,140,0.20), transparent 32%),
+        radial-gradient(circle at 100% 58%, rgba(112,143,164,0.15), transparent 30%),
+        linear-gradient(
+            180deg,
+            #0E1D31 0%,
+            #0E1D31 24%,
+            #11263D 38%,
+            #17334C 52%,
+            #294D65 65%,
+            #5F7C8E 77%,
+            #A7BAC6 87%,
+            #D9E3E9 94%,
+            #EDF2F6 97%,
+            #F7F9FC 100%
+        ) !important;
+}
+
+.mitra-top-area > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* =====================================================
    HERO / HEADING SECTION DI DALAM TOP AREA
 ===================================================== */
 .pesanan-heading,
@@ -97,6 +165,12 @@
 .summary-green { background: rgba(22, 163, 74, 0.30); border-color: rgba(74, 222, 128, 0.45); }
 .summary-red { background: rgba(220, 38, 38, 0.30); border-color: rgba(248, 113, 113, 0.45); }
 
+.summary-card.active {
+    outline: 2.5px solid #ffffff !important;
+    box-shadow: 0 0 14px rgba(255, 255, 255, 0.45) !important;
+    transform: translateY(-2px) scale(1.04) !important;
+}
+
 /* =====================================================
    FILTER TABS (DI DALAM TOP AREA)
 ===================================================== */
@@ -182,19 +256,23 @@
     border-radius: 9999px;
 }
 
-.order-card {
-    background: #FFFFFF;
-    border: 1.5px solid #E2E8F0;
-    border-radius: 18px;
+.order-card,
+.deal-card {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    border: 1.5px solid #E2E8F0 !important;
+    border-radius: 18px !important;
     padding: 14px;
-    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05) !important;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     display: block;
+    animation: none !important;
 }
 
-.order-card:hover {
-    border-color: #CBD5E1;
-    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.09);
+.order-card:hover,
+.deal-card:hover {
+    border-color: #CBD5E1 !important;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.09) !important;
     transform: translateY(-1.5px);
 }
 
@@ -475,6 +553,11 @@
     background: rgba(255, 255, 255, 0.10);
     border: 1px solid rgba(255, 255, 255, 0.18);
     backdrop-filter: blur(8px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
 }
 
 .summary-payment-label {
@@ -482,6 +565,7 @@
     font-weight: 600;
     color: rgba(255, 255, 255, 0.85);
     margin: 0;
+    text-align: center;
 }
 
 .summary-payment-number {
@@ -489,12 +573,14 @@
     font-weight: 800;
     color: #FFFFFF;
     margin: 4px 0 2px;
+    text-align: center;
 }
 
 .summary-payment-description {
     font-size: 7.5px;
     font-weight: 600;
     margin: 0;
+    text-align: center;
 }
 
 .summary-payment-yellow {
@@ -523,46 +609,84 @@
 }
 
 .pembayaran-status-title {
-    font-size: 13px;
-    font-weight: 700;
+    font-size: 14px;
+    font-weight: 800;
     color: #FFFFFF;
     margin: 0;
 }
 
 .pembayaran-status-subtitle {
-    font-size: 8.5px;
-    color: rgba(255, 255, 255, 0.65);
+    font-size: 9.5px;
+    color: rgba(255, 255, 255, 0.85);
     margin: 2px 0 8px;
 }
 
 .status-payment-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 8px;
 }
 
 .status-payment-card {
-    padding: 8px 10px;
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.14);
+    padding: 9px 5px;
+    border-radius: 13px;
+    background: rgba(255, 255, 255, 0.14);
+    border: 1.5px solid #FFFFFF;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
+    text-align: center;
+    gap: 3px;
+    cursor: pointer;
+    box-shadow: none !important;
+    transition: all 0.18s ease;
+}
+
+.status-payment-card:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: #FFFFFF;
+    box-shadow: none !important;
+    transform: translateY(-1.5px);
+}
+
+.status-payment-card.active-status,
+.status-payment-card.active-filter {
+    background: #FFFFFF !important;
+    border-color: #FFFFFF !important;
+    box-shadow: none !important;
+    transform: translateY(-2px) scale(1.02);
+}
+
+.status-payment-card.active-status .status-payment-label,
+.status-payment-card.active-filter .status-payment-label {
+    color: #0E1D31 !important;
+    font-weight: 700 !important;
+    text-shadow: none !important;
+}
+
+.status-payment-card.active-status .status-payment-number,
+.status-payment-card.active-filter .status-payment-number {
+    color: #0E1D31 !important;
+    text-shadow: none !important;
 }
 
 .status-payment-label {
     font-size: 9px;
-    font-weight: 600;
-    color: rgba(255, 255, 255, 0.85);
+    font-weight: 700;
+    color: #FFFFFF;
     margin: 0;
+    text-shadow: none !important;
 }
 
 .status-payment-number {
-    font-size: 13px;
-    font-weight: 800;
+    font-size: 14px;
+    font-weight: 900;
     color: #FFFFFF;
     margin: 0;
+    text-shadow: none !important;
 }
 
 /* Filter buttons */
@@ -649,7 +773,7 @@
 
 .payment-order {
     font-size: 9px;
-    color: #64748B;
+    color: #0F172A;
     margin: 2px 0 0;
 }
 
@@ -681,7 +805,7 @@
 .payment-method-label,
 .payment-total-label {
     font-size: 8px;
-    color: #94A3B8;
+    color: #0F172A;
     text-transform: uppercase;
     font-weight: 700;
     margin: 0;

@@ -37,6 +37,9 @@
         background: rgba(148, 163, 184, 0.3);
         border-radius: 9999px;
     }
+    #sbBurgerPanel {
+        overscroll-behavior: contain;
+    }
 </style>
 
 {{-- =====================================================
@@ -58,7 +61,7 @@
                     </div>
                     <div>
                         <h3 class="text-base font-bold tracking-tight text-white flex items-center gap-1.5 leading-none">
-                            SayaBantu<span class="text-sky-400">.com</span>
+                            SayaBantu<span class="text-white">.com</span>
                         </h3>
                         <p class="text-[10px] text-gray-400 mt-1 font-medium">Panel Kendali Admin</p>
                     </div>
@@ -84,9 +87,6 @@
                         </div>
                         <p class="text-[10px] text-gray-400 truncate">admin@sayabantu.com</p>
                         <div class="mt-1 flex items-center gap-2">
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-semibold bg-sky-500/20 text-sky-300 border border-sky-500/30">
-                                Super Admin
-                            </span>
                             <span class="text-[9px] text-gray-400">#ADM-0042</span>
                         </div>
                     </div>
@@ -96,107 +96,76 @@
             {{-- Daftar Menu Navigasi (Scrollable) --}}
             <div class="flex-1 overflow-y-auto custom-scrollbar px-3 py-4 space-y-1">
                 
-                <div class="px-3 pb-1 text-[10px] font-semibold tracking-wider text-gray-400 uppercase">
-                    Menu Utama
+                {{-- Kelompok 1: Pengelolaan Platform --}}
+                <div class="px-3 pb-1 text-[10px] font-semibold tracking-wider text-sky-400 uppercase flex items-center gap-1.5">
+                    <i class="fa-solid fa-layer-group text-[9px]"></i>
+                    <span>Pengelolaan Platform</span>
                 </div>
 
-                {{-- Dashboard Link --}}
-                <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all {{ request()->routeIs('admin.dashboard') ? 'bg-[#173B67] text-white font-bold shadow-md border-l-2 border-sky-400' : 'text-gray-200 hover:bg-white/10' }}">
-                    <i class="fa-solid fa-house w-5 text-center text-sm {{ request()->routeIs('admin.dashboard') ? 'text-sky-400' : 'text-gray-400' }}"></i>
-                    <span class="text-xs flex-1">Dashboard</span>
-                    @if(request()->routeIs('admin.dashboard'))
-                        <i class="fa-solid fa-check text-[10px] text-sky-400"></i>
-                    @endif
-                </a>
-
-                {{-- Pesanan Link --}}
-                <a href="{{ route('admin.pesanan') }}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all {{ request()->routeIs('admin.pesanan*') ? 'bg-[#173B67] text-white font-bold shadow-md border-l-2 border-sky-400' : 'text-gray-200 hover:bg-white/10' }}">
-                    <i class="fa-solid fa-file-lines w-5 text-center text-sm {{ request()->routeIs('admin.pesanan*') ? 'text-sky-400' : 'text-sky-400/80' }}"></i>
-                    <span class="text-xs flex-1">Pesanan Layanan</span>
+                {{-- 1. Manajemen Layanan --}}
+                <a href="{{ route('admin.layanan') }}" data-nav="layanan" data-icon-default="text-sky-300" onclick="handleAdminDrawerNavClick(event, '{{ route('admin.layanan') }}')" class="admin-drawer-nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all {{ request()->routeIs('admin.layanan*') ? 'bg-[#173B67] text-white font-bold shadow-md border-l-2 border-sky-400' : 'text-gray-200 hover:bg-white/10' }}">
+                    <i class="fa-solid fa-list-check w-5 text-center text-sm {{ request()->routeIs('admin.layanan*') ? 'text-sky-400' : 'text-sky-300' }}"></i>
+                    <span class="text-xs flex-1">Manajemen Layanan</span>
                     <span class="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-sky-500/20 text-sky-300 border border-sky-500/30">
-                        8 Baru
+                        18 Layanan
                     </span>
                 </a>
 
-                {{-- Pembayaran Link --}}
-                <a href="{{ route('admin.pembayaran') }}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all {{ request()->routeIs('admin.pembayaran*') ? 'bg-[#173B67] text-white font-bold shadow-md border-l-2 border-sky-400' : 'text-gray-200 hover:bg-white/10' }}">
-                    <i class="fa-solid fa-credit-card w-5 text-center text-sm {{ request()->routeIs('admin.pembayaran*') ? 'text-sky-400' : 'text-emerald-400' }}"></i>
-                    <span class="text-xs flex-1">Data Pembayaran</span>
-                    <span class="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                        3 Pending
-                    </span>
-                </a>
-
-                {{-- Konflik Link --}}
-                <a href="{{ route('admin.konflik') }}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all {{ request()->routeIs('admin.konflik*') ? 'bg-[#173B67] text-white font-bold shadow-md border-l-2 border-sky-400' : 'text-gray-200 hover:bg-white/10' }}">
-                    <i class="fa-solid fa-triangle-exclamation w-5 text-center text-sm {{ request()->routeIs('admin.konflik*') ? 'text-sky-400' : 'text-rose-400' }}"></i>
-                    <span class="text-xs flex-1">Pusat Konflik</span>
-                    <span class="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30">
-                        2 Butuh Aksi
-                    </span>
-                </a>
-
-                {{-- Mitra Link --}}
-                <a href="{{ route('admin.mitra') }}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all {{ request()->routeIs('admin.mitra*') ? 'bg-[#173B67] text-white font-bold shadow-md border-l-2 border-sky-400' : 'text-gray-200 hover:bg-white/10' }}">
-                    <i class="fa-solid fa-handshake-angle w-5 text-center text-sm {{ request()->routeIs('admin.mitra*') ? 'text-sky-400' : 'text-teal-400' }}"></i>
-                    <span class="text-xs flex-1">Data Mitra</span>
-                    <span class="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-teal-500/20 text-teal-300 border border-teal-500/30">
-                        4 Verifikasi
-                    </span>
-                </a>
-
-                {{-- Pengguna Link --}}
-                <a href="{{ route('admin.pengguna') }}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all {{ request()->routeIs('admin.pengguna*') ? 'bg-[#173B67] text-white font-bold shadow-md border-l-2 border-sky-400' : 'text-gray-200 hover:bg-white/10' }}">
-                    <i class="fa-solid fa-users w-5 text-center text-sm {{ request()->routeIs('admin.pengguna*') ? 'text-sky-400' : 'text-indigo-400' }}"></i>
-                    <span class="text-xs flex-1">Data Pengguna</span>
-                    <span class="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-                        1.240
-                    </span>
-                </a>
-
-                {{-- Review Link --}}
-                <a href="{{ route('admin.review') }}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all {{ request()->routeIs('admin.review*') ? 'bg-[#173B67] text-white font-bold shadow-md border-l-2 border-sky-400' : 'text-gray-200 hover:bg-white/10' }}">
-                    <i class="fa-solid fa-star w-5 text-center text-sm {{ request()->routeIs('admin.review*') ? 'text-sky-400' : 'text-amber-400' }}"></i>
-                    <span class="text-xs flex-1">Review & Rating</span>
+                {{-- 2. Konfirmasi Pekerjaan --}}
+                <a href="{{ route('admin.konfirmasi') }}" data-nav="konfirmasi" data-icon-default="text-amber-400" onclick="handleAdminDrawerNavClick(event, '{{ route('admin.konfirmasi') }}')" class="admin-drawer-nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all {{ request()->routeIs('admin.konfirmasi*') ? 'bg-[#173B67] text-white font-bold shadow-md border-l-2 border-sky-400' : 'text-gray-200 hover:bg-white/10' }}">
+                    <i class="fa-solid fa-clipboard-check w-5 text-center text-sm {{ request()->routeIs('admin.konfirmasi*') ? 'text-sky-400' : 'text-amber-400' }}"></i>
+                    <span class="text-xs flex-1">Konfirmasi Pekerjaan</span>
                     <span class="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                        4.8 ★
+                        6 Perlu Cek
                     </span>
                 </a>
 
-                <div class="px-3 pt-3 pb-1 text-[10px] font-semibold tracking-wider text-gray-400 uppercase">
-                    Admin & Sistem
+                {{-- 3. Pengaduan --}}
+                <a href="{{ route('admin.pengaduan') }}" data-nav="pengaduan" data-icon-default="text-rose-400" onclick="handleAdminDrawerNavClick(event, '{{ route('admin.pengaduan') }}')" class="admin-drawer-nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all {{ request()->routeIs('admin.pengaduan*') ? 'bg-[#173B67] text-white font-bold shadow-md border-l-2 border-sky-400' : 'text-gray-200 hover:bg-white/10' }}">
+                    <i class="fa-solid fa-triangle-exclamation w-5 text-center text-sm {{ request()->routeIs('admin.pengaduan*') ? 'text-sky-400' : 'text-rose-400' }}"></i>
+                    <span class="text-xs flex-1">Pengaduan</span>
+                    <span class="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                        2 Tiket
+                    </span>
+                </a>
+
+                {{-- 4. Monitoring Chat --}}
+                <a href="{{ route('admin.chat') }}" data-nav="chat" data-icon-default="text-emerald-400" onclick="handleAdminDrawerNavClick(event, '{{ route('admin.chat') }}')" class="admin-drawer-nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all {{ request()->routeIs('admin.chat*') ? 'bg-[#173B67] text-white font-bold shadow-md border-l-2 border-sky-400' : 'text-gray-200 hover:bg-white/10' }}">
+                    <i class="fa-solid fa-comments w-5 text-center text-sm {{ request()->routeIs('admin.chat*') ? 'text-sky-400' : 'text-emerald-400' }}"></i>
+                    <span class="text-xs flex-1">Monitoring Chat</span>
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                </a>
+
+                {{-- 5. Moderasi & Kepatuhan --}}
+                <a href="{{ route('admin.moderasi') }}" data-nav="moderasi" data-icon-default="text-purple-400" onclick="handleAdminDrawerNavClick(event, '{{ route('admin.moderasi') }}')" class="admin-drawer-nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all {{ request()->routeIs('admin.moderasi*') ? 'bg-[#173B67] text-white font-bold shadow-md border-l-2 border-sky-400' : 'text-gray-200 hover:bg-white/10' }}">
+                    <i class="fa-solid fa-scale-balanced w-5 text-center text-sm {{ request()->routeIs('admin.moderasi*') ? 'text-sky-400' : 'text-purple-400' }}"></i>
+                    <span class="text-xs flex-1">Moderasi & Kepatuhan</span>
+                </a>
+
+                {{-- Kelompok 2: Sistem --}}
+                <div class="px-3 pt-4 pb-1 text-[10px] font-semibold tracking-wider text-gray-400 uppercase flex items-center gap-1.5">
+                    <i class="fa-solid fa-gear text-[9px]"></i>
+                    <span>Sistem</span>
                 </div>
 
-                {{-- Profile Link --}}
-                <a href="{{ route('admin.profile') }}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all {{ request()->routeIs('admin.profile*') ? 'bg-[#173B67] text-white font-bold shadow-md border-l-2 border-sky-400' : 'text-gray-200 hover:bg-white/10' }}">
-                    <i class="fa-solid fa-user-shield w-5 text-center text-sm {{ request()->routeIs('admin.profile*') ? 'text-sky-400' : 'text-indigo-400' }}"></i>
-                    <span class="text-xs flex-1">Profil Admin</span>
-                    <i class="fa-solid fa-chevron-right text-[10px] text-gray-400"></i>
+                {{-- 6. Laporan & Analitik --}}
+                <a href="{{ route('admin.laporan') }}" data-nav="laporan" data-icon-default="text-blue-400" onclick="handleAdminDrawerNavClick(event, '{{ route('admin.laporan') }}')" class="admin-drawer-nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all {{ request()->routeIs('admin.laporan*') ? 'bg-[#173B67] text-white font-bold shadow-md border-l-2 border-sky-400' : 'text-gray-200 hover:bg-white/10' }}">
+                    <i class="fa-solid fa-chart-pie w-5 text-center text-sm {{ request()->routeIs('admin.laporan*') ? 'text-sky-400' : 'text-blue-400' }}"></i>
+                    <span class="text-xs flex-1">Laporan & Analitik</span>
                 </a>
 
-                {{-- Buka Notifikasi Trigger --}}
-                <button type="button" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-gray-200 hover:bg-white/10 transition-all text-left" onclick="closeBurgerModal(); setTimeout(openNotificationModal, 150);">
-                    <i class="fa-solid fa-bell w-5 text-center text-sm text-sky-400"></i>
-                    <span class="text-xs flex-1">Notifikasi Sistem</span>
-                    <span class="w-2 h-2 rounded-full bg-sky-400"></span>
-                </button>
+                {{-- 7. Pengaturan --}}
+                <a href="{{ route('admin.pengaturan') }}" data-nav="pengaturan" data-icon-default="text-gray-300" onclick="handleAdminDrawerNavClick(event, '{{ route('admin.pengaturan') }}')" class="admin-drawer-nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all {{ request()->routeIs('admin.pengaturan*') ? 'bg-[#173B67] text-white font-bold shadow-md border-l-2 border-sky-400' : 'text-gray-200 hover:bg-white/10' }}">
+                    <i class="fa-solid fa-sliders w-5 text-center text-sm {{ request()->routeIs('admin.pengaturan*') ? 'text-sky-400' : 'text-gray-300' }}"></i>
+                    <span class="text-xs flex-1">Pengaturan</span>
+                </a>
 
-                {{-- Pengaturan Singkat --}}
-                <button type="button" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-gray-200 hover:bg-white/10 transition-all text-left" onclick="showToast('Pengaturan', 'Fitur konfigurasi sistem dapat diatur melalui halaman Profil Admin.', 'info');">
-                    <i class="fa-solid fa-sliders w-5 text-center text-sm text-gray-400"></i>
-                    <span class="text-xs flex-1">Pengaturan Sistem</span>
-                </button>
+                <div class="pt-2"></div>
 
-                {{-- Bantuan & FAQ --}}
-                <button type="button" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-gray-200 hover:bg-white/10 transition-all text-left" onclick="showToast('Pusat Bantuan', 'Layanan bantuan SayaBantu aktif 24/7 di support@sayabantu.com', 'info');">
-                    <i class="fa-solid fa-circle-question w-5 text-center text-sm text-gray-400"></i>
-                    <span class="text-xs flex-1">Bantuan & FAQ</span>
-                </button>
-
-                {{-- Tombol Logout --}}
-                <button type="button" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-rose-300 hover:bg-rose-500/20 transition-all text-left mt-2" onclick="closeBurgerModal(); setTimeout(openLogoutModal, 150);">
+                {{-- Opsi Keluar (Paling Bawah) --}}
+                <button type="button" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-rose-300 hover:bg-rose-500/20 transition-all text-left mt-2 border border-rose-500/20" onclick="closeBurgerModal(); setTimeout(openLogoutModal, 150);">
                     <i class="fa-solid fa-arrow-right-from-bracket w-5 text-center text-sm text-rose-400"></i>
-                    <span class="text-xs font-semibold flex-1">Keluar Akun</span>
+                    <span class="text-xs font-semibold flex-1">Keluar</span>
                 </button>
 
             </div>
@@ -312,13 +281,13 @@
                 </div>
 
                 {{-- Item 3: Konflik Pelanggan --}}
-                <div class="sb-notif-item unread p-3 rounded-2xl bg-white/[0.06] hover:bg-white/[0.1] border border-white/10 transition-all cursor-pointer flex items-start gap-3" data-category="pesanan" onclick="clickNotifItem(this, '{{ route('admin.konflik') }}', 'Konflik Baru', 'Keluhan keterlambatan mitra pada tiket #KF-104')">
+                <div class="sb-notif-item unread p-3 rounded-2xl bg-white/[0.06] hover:bg-white/[0.1] border border-white/10 transition-all cursor-pointer flex items-start gap-3" data-category="pesanan" onclick="clickNotifItem(this, '{{ route('admin.konflik') }}', 'Konflik Baru', 'Keluhan keterlambatan mitra pada tiket KF-104')">
                     <div class="w-9 h-9 rounded-xl bg-rose-500/20 text-rose-400 shrink-0 flex items-center justify-center text-sm border border-rose-500/30 mt-0.5">
                         <i class="fa-solid fa-triangle-exclamation"></i>
                     </div>
                     <div class="min-w-0 flex-1">
                         <div class="flex items-center justify-between gap-1">
-                            <h4 class="text-xs font-bold text-white truncate">Keluhan Tiket #KF-104</h4>
+                            <h4 class="text-xs font-bold text-white truncate">Keluhan Tiket KF-104</h4>
                             <span class="text-[9px] text-sky-400 font-semibold shrink-0">1 jam lalu</span>
                         </div>
                         <p class="text-[11px] text-gray-300 mt-1 leading-snug">
@@ -419,7 +388,7 @@
                         <p class="text-xs text-gray-300 truncate">admin@sayabantu.com</p>
                         <p class="text-[10px] text-sky-400 mt-0.5 flex items-center gap-1 font-medium">
                             <i class="fa-solid fa-shield-halved text-[9px]"></i>
-                            Super Administrator • Akses Penuh
+                            Akses Penuh
                         </p>
                     </div>
                 </div>
@@ -479,8 +448,8 @@
                     </label>
                 </div>
 
-                {{-- Autentikasi 2FA Info --}}
-                <div class="flex items-center justify-between px-3.5 py-3 rounded-xl text-gray-200 hover:bg-white/10 transition-all cursor-pointer" onclick="window.location.href='{{ route('admin.profile') }}'">
+                {{-- Info Autentikasi 2FA --}}
+                <div class="flex items-center justify-between px-3.5 py-3 rounded-xl text-gray-200 hover:bg-white/10 transition-all cursor-pointer" onclick="closeProfileQuickModalDirect(); adminSpaNavigateTo('{{ route('admin.profile') }}', true);">
                     <div class="flex items-center gap-3">
                         <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-sm">
                             <i class="fa-solid fa-shield-halved"></i>
@@ -625,11 +594,11 @@
 {{-- =====================================================
      7. JAVASCRIPT CONTROLLER LENGKAP & ANTI-MACET (BEBAS BUG TIMEOUT)
 ====================================================== --}}
-<script>
+<script data-layout-script="true">
     // State timer untuk mencegah auto-close race condition
-    let burgerTimer = null;
-    let notifTimer = null;
-    let profileTimer = null;
+    var burgerTimer = null;
+    var notifTimer = null;
+    var profileTimer = null;
 
     document.addEventListener('DOMContentLoaded', function() {
         bindHeaderButtons();
@@ -649,7 +618,7 @@
     // Sambungkan tombol Burger, Notifikasi, dan Avatar Circle 'A'
     function bindHeaderButtons() {
         // Tombol Burger
-        const burgerButtons = document.querySelectorAll('button[aria-label="Menu"], button:has(.fa-bars), [data-action="open-burger"]');
+        const burgerButtons = document.querySelectorAll('button[aria-label="Menu"], button[aria-label="Menu Navigasi"], [data-action="open-burger"]');
         burgerButtons.forEach(btn => {
             btn.setAttribute('type', 'button');
             btn.onclick = function(e) {
@@ -660,7 +629,7 @@
         });
 
         // Tombol Notifikasi
-        const notifButtons = document.querySelectorAll('button[aria-label="Notifikasi"], button:has(.fa-bell), [data-action="open-notifications"]');
+        const notifButtons = document.querySelectorAll('#sbNotifHeaderBtn, button[aria-label="Notifikasi"], button[aria-label="Notifikasi Realtime"], [data-action="open-notifications"]');
         notifButtons.forEach(btn => {
             btn.setAttribute('type', 'button');
             btn.onclick = function(e) {
@@ -671,7 +640,7 @@
         });
 
         // Tombol Avatar Circle 'A'
-        const profileButtons = document.querySelectorAll('.profile-admin, button[aria-label="Profil Admin"], [data-action="open-profile-menu"]');
+        const profileButtons = document.querySelectorAll('#sbAvatarHeaderBtn, .profile-admin, button[aria-label="Profil Admin"], [data-action="open-profile-menu"]');
         profileButtons.forEach(btn => {
             btn.setAttribute('type', 'button');
             btn.onclick = function(e) {
@@ -711,6 +680,20 @@
         });
     }
 
+    // Kunci dan buka kunci scroll background admin saat burger menu dibuka
+    function lockAdminBodyScroll() {
+        document.documentElement.classList.add('overflow-hidden', 'sb-scroll-locked');
+        document.body.classList.add('overflow-hidden', 'sb-scroll-locked');
+    }
+
+    function unlockAdminBodyScroll() {
+        const anyModalOpen = document.querySelector('#sbBurgerModal.pointer-events-auto, #sbNotificationModal.pointer-events-auto, #sbProfileQuickModal.pointer-events-auto, #sbPasswordModal.pointer-events-auto, #sbLogoutModal.pointer-events-auto');
+        if (!anyModalOpen) {
+            document.documentElement.classList.remove('overflow-hidden', 'sb-scroll-locked');
+            document.body.classList.remove('overflow-hidden', 'sb-scroll-locked');
+        }
+    }
+
     // Bind klik backdrop luar & tombol escape keyboard
     function bindBackdropAndEscape() {
         document.querySelectorAll('.sb-backdrop-click').forEach(bg => {
@@ -719,6 +702,9 @@
                 e.stopPropagation();
                 closeAllModals();
             });
+            bg.addEventListener('touchmove', function(e) {
+                e.preventDefault();
+            }, { passive: false });
         });
 
         document.addEventListener('keydown', function(e) {
@@ -743,10 +729,20 @@
         const panel = document.getElementById('sbBurgerPanel');
         if (!modal || !panel) return;
 
-        modal.classList.remove('opacity-0', 'invisible', 'pointer-events-none');
-        modal.classList.add('opacity-100', 'pointer-events-auto');
+        // .is-open adalah penanda tunggal status terbuka (lihat admin-components.css)
+        modal.classList.remove('invisible', 'opacity-0', 'pointer-events-none');
+        modal.classList.add('is-open', 'pointer-events-auto');
         panel.classList.remove('-translate-x-full');
         panel.classList.add('translate-x-0');
+        modal.removeAttribute('aria-hidden');
+
+        lockAdminBodyScroll();
+        if (typeof syncAdminDrawerActiveNav === 'function') {
+            syncAdminDrawerActiveNav();
+        }
+        if (typeof prefetchCoreAdminRoutes === 'function') {
+            prefetchCoreAdminRoutes();
+        }
     }
 
     function closeBurgerModal() {
@@ -756,12 +752,16 @@
 
         panel.classList.add('-translate-x-full');
         panel.classList.remove('translate-x-0');
-        
+        modal.classList.remove('is-open', 'pointer-events-auto');
+        modal.classList.add('pointer-events-none');
+
         if (burgerTimer) clearTimeout(burgerTimer);
         burgerTimer = setTimeout(() => {
             modal.classList.add('opacity-0', 'invisible', 'pointer-events-none');
-            modal.classList.remove('opacity-100', 'pointer-events-auto');
+            modal.classList.remove('opacity-100');
+            modal.setAttribute('aria-hidden', 'true');
             burgerTimer = null;
+            unlockAdminBodyScroll();
         }, 220);
     }
 
@@ -772,9 +772,86 @@
         if (!modal || !panel) return;
         panel.classList.add('-translate-x-full');
         panel.classList.remove('translate-x-0');
+        modal.classList.remove('is-open', 'opacity-100', 'pointer-events-auto');
         modal.classList.add('opacity-0', 'invisible', 'pointer-events-none');
-        modal.classList.remove('opacity-100', 'pointer-events-auto');
+        modal.setAttribute('aria-hidden', 'true');
+        unlockAdminBodyScroll();
     }
+
+    function syncAdminDrawerActiveNav(currentPath) {
+        if (!currentPath) {
+            try {
+                currentPath = window.location.pathname;
+            } catch(e) {
+                currentPath = '';
+            }
+        }
+
+        const allDrawerLinks = document.querySelectorAll('#sbBurgerPanel .admin-drawer-nav-item');
+        allDrawerLinks.forEach(link => {
+            const rawHref = link.getAttribute('href') || '';
+            let linkPath = '';
+            try {
+                linkPath = new URL(rawHref, window.location.origin).pathname;
+            } catch(e) {}
+
+            const icon = link.querySelector('i');
+            const defaultIconColor = link.getAttribute('data-icon-default') || 'text-sky-300';
+
+            let isActive = false;
+            if (linkPath && currentPath) {
+                if (currentPath === linkPath || currentPath.startsWith(linkPath + '/') || (linkPath !== '/admin' && currentPath.includes(linkPath))) {
+                    isActive = true;
+                }
+            }
+
+            if (isActive) {
+                link.classList.add('bg-[#173B67]', 'text-white', 'font-bold', 'shadow-md', 'border-l-2', 'border-sky-400');
+                link.classList.remove('text-gray-200', 'hover:bg-white/10');
+                if (icon) {
+                    icon.classList.remove(defaultIconColor);
+                    icon.classList.add('text-sky-400');
+                }
+            } else {
+                link.classList.remove('bg-[#173B67]', 'text-white', 'font-bold', 'shadow-md', 'border-l-2', 'border-sky-400');
+                link.classList.add('text-gray-200', 'hover:bg-white/10');
+                if (icon) {
+                    icon.classList.remove('text-sky-400');
+                    icon.classList.add(defaultIconColor);
+                }
+            }
+        });
+    }
+    window.syncAdminDrawerActiveNav = syncAdminDrawerActiveNav;
+
+    function handleAdminDrawerNavClick(e, url) {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        try {
+            const local = (typeof window.toAdminLocalUrl === 'function') ? window.toAdminLocalUrl(url) : new URL(url, window.location.origin);
+            if (local && typeof window.syncAdminDrawerActiveNav === 'function') {
+                window.syncAdminDrawerActiveNav(local.pathname);
+            }
+        } catch(err) {}
+
+        closeBurgerModalDirect();
+        if (typeof window.adminSpaNavigateTo === 'function') {
+            window.adminSpaNavigateTo(url, true);
+        }
+    }
+
+    // Expose alias globally for inline onclick callers
+    window.openBurgerModal = openBurgerModal;
+    window.closeBurgerModal = closeBurgerModal;
+    window.closeBurgerModalDirect = closeBurgerModalDirect;
+    window.handleAdminDrawerNavClick = handleAdminDrawerNavClick;
+    window.openSbBurger = openBurgerModal;
+    window.closeSbBurger = closeBurgerModal;
+    window.bindHeaderButtons = bindHeaderButtons;
+    window.bindBackdropAndEscape = bindBackdropAndEscape;
 
     function openNotificationModal() {
         if (notifTimer) { clearTimeout(notifTimer); notifTimer = null; }
@@ -786,8 +863,9 @@
         const panel = document.getElementById('sbNotificationPanel');
         if (!modal || !panel) return;
 
-        modal.classList.remove('opacity-0', 'invisible', 'pointer-events-none');
-        modal.classList.add('opacity-100', 'pointer-events-auto');
+        modal.classList.remove('invisible', 'opacity-0', 'pointer-events-none');
+        modal.classList.add('is-open', 'pointer-events-auto');
+        modal.removeAttribute('aria-hidden');
         panel.classList.remove('translate-y-full');
         panel.classList.add('translate-y-0');
     }
@@ -799,11 +877,14 @@
 
         panel.classList.add('translate-y-full');
         panel.classList.remove('translate-y-0');
+        modal.classList.remove('is-open', 'pointer-events-auto');
+        modal.classList.add('pointer-events-none');
 
         if (notifTimer) clearTimeout(notifTimer);
         notifTimer = setTimeout(() => {
             modal.classList.add('opacity-0', 'invisible', 'pointer-events-none');
-            modal.classList.remove('opacity-100', 'pointer-events-auto');
+            modal.setAttribute('aria-hidden', 'true');
+            modal.classList.remove('opacity-100');
             notifTimer = null;
         }, 220);
     }
@@ -815,8 +896,8 @@
         if (!modal || !panel) return;
         panel.classList.add('translate-y-full');
         panel.classList.remove('translate-y-0');
+        modal.classList.remove('is-open', 'opacity-100', 'pointer-events-auto');
         modal.classList.add('opacity-0', 'invisible', 'pointer-events-none');
-        modal.classList.remove('opacity-100', 'pointer-events-auto');
     }
 
     function openProfileQuickModal() {
@@ -829,8 +910,9 @@
         const panel = document.getElementById('sbProfileQuickPanel');
         if (!modal || !panel) return;
 
-        modal.classList.remove('opacity-0', 'invisible', 'pointer-events-none');
-        modal.classList.add('opacity-100', 'pointer-events-auto');
+        modal.classList.remove('invisible', 'opacity-0', 'pointer-events-none');
+        modal.classList.add('is-open', 'pointer-events-auto');
+        modal.removeAttribute('aria-hidden');
         panel.classList.remove('scale-95', 'opacity-0');
         panel.classList.add('scale-100', 'opacity-100');
     }
@@ -842,11 +924,14 @@
 
         panel.classList.add('scale-95', 'opacity-0');
         panel.classList.remove('scale-100', 'opacity-100');
+        modal.classList.remove('is-open', 'pointer-events-auto');
+        modal.classList.add('pointer-events-none');
 
         if (profileTimer) clearTimeout(profileTimer);
         profileTimer = setTimeout(() => {
             modal.classList.add('opacity-0', 'invisible', 'pointer-events-none');
-            modal.classList.remove('opacity-100', 'pointer-events-auto');
+            modal.setAttribute('aria-hidden', 'true');
+            modal.classList.remove('opacity-100');
             profileTimer = null;
         }, 200);
     }
@@ -858,8 +943,9 @@
         if (!modal || !panel) return;
         panel.classList.add('scale-95', 'opacity-0');
         panel.classList.remove('scale-100', 'opacity-100');
+        modal.classList.remove('is-open', 'opacity-100', 'pointer-events-auto');
         modal.classList.add('opacity-0', 'invisible', 'pointer-events-none');
-        modal.classList.remove('opacity-100', 'pointer-events-auto');
+        modal.setAttribute('aria-hidden', 'true');
     }
 
     function openPasswordModal() {
@@ -868,10 +954,12 @@
         const panel = document.getElementById('sbPasswordPanel');
         if (!modal || !panel) return;
 
-        modal.classList.remove('opacity-0', 'invisible', 'pointer-events-none');
-        modal.classList.add('opacity-100', 'pointer-events-auto');
+        modal.classList.remove('invisible', 'opacity-0', 'pointer-events-none');
+        modal.classList.add('is-open', 'pointer-events-auto');
+        modal.removeAttribute('aria-hidden');
         panel.classList.remove('scale-95', 'opacity-0');
         panel.classList.add('scale-100', 'opacity-100');
+        lockAdminBodyScroll();
     }
 
     function openLogoutModal() {
@@ -880,10 +968,12 @@
         const panel = document.getElementById('sbLogoutPanel');
         if (!modal || !panel) return;
 
-        modal.classList.remove('opacity-0', 'invisible', 'pointer-events-none');
-        modal.classList.add('opacity-100', 'pointer-events-auto');
+        modal.classList.remove('invisible', 'opacity-0', 'pointer-events-none');
+        modal.classList.add('is-open', 'pointer-events-auto');
+        modal.removeAttribute('aria-hidden');
         panel.classList.remove('scale-95', 'opacity-0');
         panel.classList.add('scale-100', 'opacity-100');
+        lockAdminBodyScroll();
     }
 
     function closeModal(modalId) {
@@ -898,17 +988,20 @@
                 panel.classList.add('scale-95', 'opacity-0');
                 panel.classList.remove('scale-100', 'opacity-100');
             }
+            modal.classList.remove('is-open', 'pointer-events-auto');
+            modal.classList.add('pointer-events-none');
             setTimeout(() => {
                 modal.classList.add('opacity-0', 'invisible', 'pointer-events-none');
-                modal.classList.remove('opacity-100', 'pointer-events-auto');
+                modal.setAttribute('aria-hidden', 'true');
+                unlockAdminBodyScroll();
             }, 200);
         }
     }
 
     function closeAllModals() {
-        closeBurgerModal();
-        closeNotificationModal();
-        closeProfileQuickModal();
+        closeBurgerModalDirect();
+        closeNotificationModalDirect();
+        closeProfileQuickModalDirect();
         ['sbPasswordModal', 'sbLogoutModal'].forEach(id => {
             const modal = document.getElementById(id);
             if (modal) {
@@ -917,11 +1010,27 @@
                     panel.classList.add('scale-95', 'opacity-0');
                     panel.classList.remove('scale-100', 'opacity-100');
                 }
+                modal.classList.remove('is-open', 'opacity-100', 'pointer-events-auto');
                 modal.classList.add('opacity-0', 'invisible', 'pointer-events-none');
-                modal.classList.remove('opacity-100', 'pointer-events-auto');
+                modal.setAttribute('aria-hidden', 'true');
             }
         });
+        unlockAdminBodyScroll();
     }
+
+    // Expose all functions to window for onclick caller access
+    window.openNotificationModal = openNotificationModal;
+    window.closeNotificationModal = closeNotificationModal;
+    window.openSbNotifSheet = openNotificationModal;
+    window.closeSbNotifSheet = closeNotificationModal;
+    window.openProfileQuickModal = openProfileQuickModal;
+    window.closeProfileQuickModal = closeProfileQuickModal;
+    window.openSbAvatarMenu = openProfileQuickModal;
+    window.closeSbAvatarMenu = closeProfileQuickModal;
+    window.openPasswordModal = openPasswordModal;
+    window.openLogoutModal = openLogoutModal;
+    window.closeModal = closeModal;
+    window.closeAllModals = closeAllModals;
 
     /* =========================================================
        FILTER & AKSI NOTIFIKASI
@@ -952,10 +1061,10 @@
         updateNotificationDotBadge();
 
         if (targetUrl) {
-            showToast(title, desc + '... Mengalihkan...', 'info');
-            setTimeout(() => {
-                window.location.href = targetUrl;
-            }, 600);
+            closeNotificationModalDirect();
+            if (typeof window.adminSpaNavigateTo === 'function') {
+                window.adminSpaNavigateTo(targetUrl, true);
+            }
         } else {
             showToast(title, desc, 'success');
         }
@@ -1041,10 +1150,14 @@
     ========================================================== */
     function confirmLogoutAction() {
         closeModal('sbLogoutModal');
-        showToast('Mengeluarkan Sesi', 'Sesi admin ditutup. Mengalihkan...', 'info');
+        showToast('Mengeluarkan Sesi', 'Sesi admin telah diakhiri. Mengalihkan ke login...', 'info');
+        try {
+            if (window.adminDomCache) window.adminDomCache.clear();
+            localStorage.setItem('sb_admin_logged_out', 'true');
+        } catch(e) {}
         setTimeout(() => {
-            window.location.href = "{{ route('admin.dashboard') }}";
-        }, 1200);
+            window.location.href = "{{ route('admin.logout') }}";
+        }, 500);
     }
 
     /* =========================================================
@@ -1113,4 +1226,5 @@
             }, 300);
         }, 3500);
     }
+    window.showToast = showToast;
 </script>

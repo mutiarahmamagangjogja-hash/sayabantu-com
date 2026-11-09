@@ -9,17 +9,12 @@
 
     @include('customer.partials.mobile-header')
 
-    <section class="relative z-10 px-5 pt-1 pb-5">
-        <a href="{{ route('customer.index') }}" class="inline-flex items-center gap-1.5 text-[10px] font-semibold text-white/75 mb-2">
-            <i class="fa-solid fa-arrow-left text-[9px]"></i>
-            Kembali ke Beranda
-        </a>
-        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/10 border border-white/15 text-[9px] font-bold text-sky-200">
-            <i class="fa-solid fa-diagram-project text-[8px]"></i> Panduan Pengguna
-        </span>
-        <h1 class="mt-2 text-[20px] font-bold tracking-tight text-white">Cara Kerja</h1>
-        <p class="mt-1 text-[10px] text-white/70">Empat langkah sederhana dari memilih layanan sampai tugas selesai.</p>
-    </section>
+    {{-- PAGE HEADER STANDAR (JUDUL + DESKRIPSI HALAMAN) --}}
+    @include('customer.partials.page-header', [
+        'judul' => 'Cara Kerja',
+        'deskripsi' => 'Empat langkah sederhana dari memilih layanan sampai tugas selesai.',
+        'kembali' => false,
+    ])
 </div>
 @endsection
 
@@ -65,6 +60,26 @@
             'indigo' => 'bg-indigo-50 text-indigo-600 border-indigo-100',
         ];
     @endphp
+
+    {{-- MASKOT HERO PANDUAN CARA KERJA --}}
+    <section class="card-sb p-4 bg-gradient-to-br from-white via-sky-50/50 to-blue-50/40 border border-sky-150 overflow-hidden relative shadow-xs">
+        <div class="flex items-center gap-3.5">
+            <div class="shrink-0 w-20 h-20 rounded-2xl overflow-hidden border-2 border-white shadow-md relative bg-slate-900/10">
+                <img src="{{ asset('images/mascot-helper.jpg') }}" alt="Maskot Bocah SayaBantu" class="w-full h-full object-cover">
+            </div>
+            <div class="flex-1 min-w-0">
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[8.5px] font-extrabold mb-1">
+                    <i class="fa-solid fa-bolt text-emerald-600 text-[8px]"></i> Praktis &amp; Tanpa Ribet
+                </span>
+                <h2 class="text-xs font-bold text-[#0E1D31] leading-tight">
+                    Mudah dalam 4 Langkah
+                </h2>
+                <p class="text-[9.5px] text-slate-600 mt-1 leading-relaxed">
+                    Mulai dari pesan layanan hingga pekerjaan selesai dan rumah Anda rapi kembali bersama Bocah SayaBantu.
+                </p>
+            </div>
+        </div>
+    </section>
 
     @foreach($langkah as $l)
         <section class="card-sb p-3.5 flex items-start gap-3">

@@ -1,8 +1,6 @@
 @extends('layouts.admin')
 
 @section('title', 'Profil Admin - SayaBantu.com')
-@section('back-url', route('admin.dashboard'))
-@section('back-text', 'Kembali ke Dashboard')
 @section('page-title', 'Profil Admin')
 @section('page-subtitle', 'Pengaturan akun, keamanan sistem, dan log audit SayaBantu.com')
 
@@ -29,9 +27,6 @@
         <p class="text-xs text-gray-300 mt-0.5">admin@sayabantu.com</p>
 
         <div class="mt-2.5 flex items-center justify-center gap-2 flex-wrap">
-            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#173B67] text-sky-300 border border-sky-400/30">
-                Super Admin
-            </span>
             <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                 Status Online
@@ -79,7 +74,7 @@
         <div class="space-y-2.5 text-xs">
             <div class="flex items-center justify-between py-1.5 border-b border-gray-50">
                 <span class="text-gray-500 text-[11px]">Tingkat Akses</span>
-                <span class="font-bold text-gray-900">Super Administrator (Level 1)</span>
+                <span class="font-bold text-gray-900">Administrator (Level 1)</span>
             </div>
             <div class="flex items-center justify-between py-1.5 border-b border-gray-50">
                 <span class="text-gray-500 text-[11px]">Alamat Email</span>
@@ -136,7 +131,7 @@
                 </div>
                 <div>
                     <h4 class="text-xs font-bold text-gray-900">Autentikasi 2FA</h4>
-                    <p class="text-[10px] text-gray-500">Verifikasi kode masuk via WhatsApp / SMS</p>
+                    <p class="text-[10px] text-gray-500">Verifikasi kode masuk via SMS</p>
                 </div>
             </div>
             <label class="relative inline-flex items-center cursor-pointer">

@@ -74,7 +74,8 @@
          * Sambungkan Server-Sent Events (SSE)
          */
         connectStream() {
-            if (!window.EventSource) {
+            // Pada localhost / php artisan serve, gunakan smart polling agar tidak memblokir server PHP single-thread
+            if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost' || !window.EventSource) {
                 this.startPolling();
                 return;
             }
@@ -160,6 +161,7 @@
          */
         applyState(state, isRealtimeUpdate = false) {
             const prevState = this.lastState;
+            const hasChanged = key => JSON.stringify(prevState?.[key]) !== JSON.stringify(state[key]);
             this.lastState = state;
 
             // 1. Update Statistik Counter
@@ -193,13 +195,18 @@
                 }
             }
 
+            // 2.B Render Notifikasi Realtime di Header Modal
+            if (state.notifications && Array.isArray(state.notifications) && hasChanged('notifications')) {
+                this.renderNotificationList(state.notifications);
+            }
+
             // 3. Render Pesanan Terbaru (Dashboard)
-            if (state.recent_orders && Array.isArray(state.recent_orders)) {
+            if (state.recent_orders && Array.isArray(state.recent_orders) && hasChanged('recent_orders')) {
                 this.renderRecentOrders(state.recent_orders, isRealtimeUpdate);
             }
 
             // 4. Render Aktivitas Terbaru (Dashboard & Pembayaran)
-            if (state.recent_activities && Array.isArray(state.recent_activities)) {
+            if (state.recent_activities && Array.isArray(state.recent_activities) && hasChanged('recent_activities')) {
                 this.renderRecentActivities(state.recent_activities, isRealtimeUpdate);
             }
 
@@ -220,6 +227,15 @@
                 if (newPayment > prevPayment) {
                     this.playNotificationChime();
                     this.showToast('Pembayaran Diterima!', 'Sistem berhasil memverifikasi transaksi pembayaran baru.', 'payment');
+                }
+
+                const prevMitra = prevState.stats?.total_mitra || 0;
+                const newMitra = state.stats?.total_mitra || 0;
+                if (newMitra > prevMitra) {
+                    this.playNotificationChime();
+                    const latestNotif = state.notifications?.find(n => n.title && n.title.includes('Mitra'));
+                    const msg = latestNotif ? latestNotif.message : 'Calon mitra baru telah mendaftar dan menunggu verifikasi berkas.';
+                    this.showToast('Pendaftaran Mitra Baru!', msg, 'partner');
                 }
             }
 
@@ -242,7 +258,7 @@
                 html += `
                     <div
                         class="pesanan-item flex cursor-pointer items-center gap-3 p-3.5 hover:bg-gray-50/80 active:scale-[0.99] transition-all ${isFirst && animateNew ? 'sb-item-highlight' : ''}"
-                        onclick="window.location.href='${detailUrl}'"
+                        onclick="event.stopPropagation(); if (typeof adminSpaNavigateTo === 'function') { adminSpaNavigateTo('${detailUrl}'); } else { window.location.href='${detailUrl}'; }"
                         title="Lihat Detail Pesanan ${item.id}"
                     >
                         <div class="icon-box ${item.icon_class || 'icon-blue'} shrink-0">
@@ -292,9 +308,11 @@
             let html = '';
             activities.slice(0, 4).forEach((item, index) => {
                 const isFirst = index === 0;
+                const targetUrl = item.url || (item.type === 'partner' ? '/admin/mitra' : '/admin/pesanan');
 
                 html += `
-                    <div class="flex items-center gap-3 ${isFirst && animateNew ? 'sb-item-highlight rounded-xl p-1.5' : ''}">
+                    <div class="flex items-center gap-3 cursor-pointer rounded-xl hover:bg-sky-50 active:scale-[0.995] transition-all p-1.5 ${isFirst && animateNew ? 'sb-item-highlight' : ''}"
+                         onclick="event.stopPropagation(); if (typeof adminSpaNavigateTo === 'function') { adminSpaNavigateTo('${targetUrl}'); } else { window.location.href='${targetUrl}'; }">
                         <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${item.color_class || 'bg-blue-50 text-blue-600'} shadow-sm">
                             <i class="fa-solid ${item.icon || 'fa-bell'} text-[11px]"></i>
                         </div>
@@ -320,6 +338,59 @@
             });
 
             container.innerHTML = html;
+        }
+
+        /**
+         * Render Notifikasi Realtime di Header Modal
+         */
+        renderNotificationList(notifications) {
+            const container = document.getElementById('notificationList');
+            if (!container || !Array.isArray(notifications) || notifications.length === 0) return;
+
+            const activeTab = document.querySelector('.sb-notif-tab.active');
+            const activeFilter = activeTab ? activeTab.getAttribute('data-filter') : 'all';
+            if (activeFilter && activeFilter !== 'all') return;
+
+            let html = '';
+            notifications.slice(0, 10).forEach(n => {
+                const isUnread = !n.read;
+                const isMitra = n.title && (n.title.includes('Mitra') || n.title.includes('Kemitraan'));
+                const isPayment = n.title && (n.title.includes('Bayar') || n.title.includes('Pembayaran'));
+                const category = isPayment ? 'pembayaran' : (isMitra ? 'sistem' : 'pesanan');
+                const targetUrl = isMitra ? '/admin/pengguna?tab=mitra' : (isPayment ? '/admin/pembayaran' : '/admin/pesanan');
+                const icon = n.icon || (isMitra ? 'fa-id-card' : (isPayment ? 'fa-circle-dollar-to-slot' : 'fa-file-circle-plus'));
+                const iconColor = isMitra ? 'bg-purple-500/20 text-purple-400 border-purple-500/30' : (isPayment ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 'bg-blue-500/20 text-blue-400 border-blue-500/30');
+                const tag = isMitra ? 'Verifikasi Berkas' : (isPayment ? 'Terverifikasi' : 'Pesanan Masuk');
+
+                const safeTitle = (n.title || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                const safeMessage = (n.message || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+
+                html += `
+                    <div class="sb-notif-item ${isUnread ? 'unread' : 'opacity-75'} p-3 rounded-2xl bg-white/[0.06] hover:bg-white/[0.1] border border-white/10 transition-all cursor-pointer flex items-start gap-3"
+                         data-category="${category}"
+                         onclick="clickNotifItem(this, '${targetUrl}', '${safeTitle}', '${safeMessage}')">
+                        <div class="w-9 h-9 rounded-xl ${iconColor} shrink-0 flex items-center justify-center text-sm border mt-0.5">
+                            <i class="fa-solid ${icon}"></i>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <div class="flex items-center justify-between gap-1">
+                                <h4 class="text-xs font-bold text-white truncate">${n.title || ''}</h4>
+                                <span class="text-[9px] ${isUnread ? 'text-sky-400 font-semibold' : 'text-gray-400 font-medium'} shrink-0">${n.time || 'Baru saja'}</span>
+                            </div>
+                            <p class="text-[11px] text-gray-300 mt-1 leading-snug">${n.message || ''}</p>
+                            <div class="mt-2 flex items-center justify-between">
+                                <span class="text-[9px] px-2 py-0.5 rounded-md ${isMitra ? 'bg-purple-500/20 text-purple-300' : 'bg-blue-500/20 text-blue-300'} font-medium">${tag}</span>
+                                ${isUnread ? '<span class="unread-badge w-2 h-2 rounded-full bg-sky-400"></span>' : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+
+            const totalEl = document.getElementById('notifCountTotal');
+            if (totalEl) totalEl.innerText = notifications.length;
         }
 
         /**
@@ -378,22 +449,18 @@
             const ind = document.getElementById('sbLiveIndicator');
             if (!ind) return;
 
+            // Titik kecil di sudut bawah ikon lonceng (tanpa label teks)
+            ind.title = label;
             if (isActive) {
-                ind.className = 'sb-live-badge flex items-center gap-1.5 px-2 py-1 rounded-full bg-emerald-500/15 border border-emerald-400/30 text-emerald-300 text-[8.5px] font-semibold tracking-wide';
+                ind.className = 'sb-live-badge absolute -bottom-0.5 -right-0.5 flex h-2 w-2';
                 ind.innerHTML = `
-                    <span class="relative flex h-1.5 w-1.5">
-                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-400"></span>
-                    </span>
-                    <span class="hidden xs:inline">${label}</span>
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span class="relative inline-flex h-full w-full rounded-full bg-emerald-400 ring-1 ring-[#0E1D31]"></span>
                 `;
             } else {
-                ind.className = 'sb-live-badge flex items-center gap-1.5 px-2 py-1 rounded-full bg-amber-500/15 border border-amber-400/30 text-amber-300 text-[8.5px] font-semibold tracking-wide';
+                ind.className = 'sb-live-badge absolute -bottom-0.5 -right-0.5 flex h-2 w-2';
                 ind.innerHTML = `
-                    <span class="relative flex h-1.5 w-1.5">
-                        <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-amber-400"></span>
-                    </span>
-                    <span class="hidden xs:inline">${label}</span>
+                    <span class="relative inline-flex h-full w-full rounded-full bg-amber-400 ring-1 ring-[#0E1D31]"></span>
                 `;
             }
         }

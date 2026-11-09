@@ -9,17 +9,12 @@
 
     @include('customer.partials.mobile-header')
 
-    <section class="relative z-10 px-5 pt-4 pb-6">
-        <a href="{{ route('customer.index') }}" class="inline-flex items-center gap-1.5 text-[10px] font-semibold text-white/75 mb-3">
-            <i class="fa-solid fa-arrow-left text-[9px]"></i>
-            Kembali ke Layanan
-        </a>
-        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/10 border border-white/15 text-[9px] font-bold text-sky-200">
-            <i class="fa-solid fa-circle-info text-[8px]"></i> Detail Layanan Publik
-        </span>
-        <h1 class="mt-2 text-[20px] font-bold tracking-tight text-white">{{ $serviceName }}</h1>
-        <p class="mt-1 text-[10px] text-white/70">Bantuan profesional yang disesuaikan dengan kebutuhan Anda.</p>
-    </section>
+    {{-- PAGE HEADER STANDAR (JUDUL + DESKRIPSI HALAMAN) --}}
+    @include('customer.partials.page-header', [
+        'judul' => $serviceName,
+        'deskripsi' => 'Bantuan profesional yang disesuaikan dengan kebutuhan Anda.',
+        'kembali' => false,
+    ])
 </div>
 @endsection
 
@@ -37,12 +32,12 @@
 
         <div class="grid grid-cols-2 gap-2 text-center">
             <div class="rounded-xl bg-slate-50 border border-slate-200 p-2.5">
-                <span class="block text-[9px] text-slate-400">Mulai dari</span>
-                <strong class="block mt-0.5 text-xs text-[#173B67]">Rp {{ $serviceBudget }}</strong>
+                <span class="block text-[9px] text-slate-400">Status Layanan</span>
+                <strong class="block mt-0.5 text-xs text-emerald-700 font-bold">Mitra Standby</strong>
             </div>
             <div class="rounded-xl bg-slate-50 border border-slate-200 p-2.5">
                 <span class="block text-[9px] text-slate-400">Penugasan</span>
-                <strong class="block mt-0.5 text-xs text-emerald-700">Otomatis</strong>
+                <strong class="block mt-0.5 text-xs text-[#173B67] font-bold">Otomatis</strong>
             </div>
         </div>
 

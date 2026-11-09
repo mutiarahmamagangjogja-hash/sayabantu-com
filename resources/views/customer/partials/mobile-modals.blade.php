@@ -33,7 +33,7 @@
         <div class="p-3 bg-sky-50 rounded-2xl border border-sky-100 flex items-start gap-2.5">
             <i class="fa-solid fa-bell text-sky-600 mt-0.5"></i>
             <p class="text-[11px] text-sky-900 leading-relaxed">
-                Permintaan Anda telah masuk ke sistem. Hubungi Customer Service via WhatsApp di bawah untuk konfirmasi penugasan mitra terdekat.
+                Permintaan Anda telah masuk ke sistem. Anda dapat memantau penugasan mitra secara langsung di aplikasi.
             </p>
         </div>
 
@@ -63,8 +63,8 @@
 
         {{-- ACTION BUTTONS --}}
         <div class="space-y-2 pt-2">
-            <a id="btnSendWaSheet" href="#" target="_blank" class="w-full py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-center shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 transition-all">
-                <i class="fa-brands fa-whatsapp text-base"></i> Hubungi WhatsApp Admin
+            <a id="btnSendWaSheet" href="{{ route('customer.pesanan') }}" class="w-full py-3 rounded-2xl bg-[#0E1D31] hover:bg-[#173B67] text-white font-extrabold text-center shadow-lg flex items-center justify-center gap-2 transition-all">
+                <i class="fa-solid fa-list-check text-base"></i> Pantau Status Pesanan
             </a>
 
             <button type="button" onclick="closeAllMobileSheets(); showCustomerToast('Tersimpan', 'Pesanan berhasil disimpan di tab Pesanan', 'success')" class="w-full py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-center transition-all">
@@ -139,8 +139,8 @@
                     </div>
                 </div>
 
-                <a href="https://wa.me/6281234567890?text=Halo%20Admin%2C%20mau%20tanya%20status%20suruhan%20SB-9012" target="_blank" class="block w-full py-2 bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 font-bold rounded-xl text-center transition-all">
-                    <i class="fa-brands fa-whatsapp text-emerald-500 mr-1"></i> Tanya CS WhatsApp
+                <a href="{{ route('customer.pengaduan') }}" class="block w-full py-2 bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 font-bold rounded-xl text-center transition-all">
+                    <i class="fa-solid fa-headset text-sky-600 mr-1"></i> Tanya CS / Pengaduan
                 </a>
             </div>
         </div>
@@ -200,14 +200,6 @@
     </div>
 
     <div class="p-5 overflow-y-auto space-y-2.5 text-xs">
-        <div class="p-3 bg-blue-50/70 border border-blue-100 rounded-2xl">
-            <div class="flex items-center justify-between mb-1">
-                <span class="text-[10px] font-bold text-sky-700">Promo Hari Ini</span>
-                <span class="text-[9px] text-slate-400">10 mnt lalu</span>
-            </div>
-            <p class="text-slate-800 text-[11px] leading-snug">Diskon Rp 25.000 untuk suruhan pertama kategori Pindahan Kos & Angkut Barang!</p>
-        </div>
-
         <div class="p-3 bg-slate-50 border border-slate-200 rounded-2xl">
             <div class="flex items-center justify-between mb-1">
                 <span class="text-[10px] font-bold text-emerald-700">Pemberitahuan Sistem</span>
@@ -233,7 +225,7 @@
                 <i class="fa-solid fa-id-badge"></i>
             </div>
             <div>
-                <h3 class="text-sm font-extrabold text-slate-900">Gabung Mitra Bocah SayaBantu</h3>
+                <h3 class="text-sm font-extrabold text-slate-900">Gabung Mitra SayaBantu</h3>
                 <span class="text-[10px] text-slate-500">Raih penghasilan jutaan rupiah per bulan</span>
             </div>
         </div>
@@ -249,7 +241,7 @@
         </div>
 
         <div>
-            <label class="block text-[11px] font-bold text-slate-700 mb-1">Nomor WhatsApp Aktif</label>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">Nomor Handphone Aktif</label>
             <input type="tel" id="mitraWa" placeholder="0812..." class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:outline-none">
         </div>
 
@@ -259,7 +251,7 @@
                 <option value="Bersih-bersih & Housekeeping">Bersih-bersih & Housekeeping</option>
                 <option value="Angkut Barang & Pindahan">Angkut Barang & Pindahan</option>
                 <option value="Driver & Antar Jemput">Driver & Antar Jemput</option>
-                <option value="Tukang Serbaguna & Servis AC">Tukang Serbaguna & Servis AC</option>
+                <option value="Suruhan Harian">Suruhan Harian</option>
                 <option value="Suruhan Serbaguna (All Rounder)">Suruhan Serbaguna (All Rounder)</option>
             </select>
         </div>
@@ -344,7 +336,7 @@
         const nama = document.getElementById('mitraNama').value.trim();
         const wa = document.getElementById('mitraWa').value.trim();
         if (!nama || !wa) {
-            showCustomerToast('Perhatian', 'Mohon lengkapi nama dan nomor WhatsApp', 'warning');
+            showCustomerToast('Perhatian', 'Mohon lengkapi nama dan nomor handphone', 'warning');
             return;
         }
         closeAllMobileSheets();

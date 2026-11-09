@@ -18,7 +18,7 @@
                     </span>
                 </div>
                 <p class="text-xs text-slate-400 leading-relaxed">
-                    Platform penyedia jasa dan suruhan serbaguna terpercaya. Siap melayani kebutuhan harian Anda mulai dari bersih-bersih, angkut barang, perbaikan, hingga suruhan khusus dengan cepat dan amanah.
+                    Platform penyedia jasa untuk kebutuhan harian seperti kebersihan, pindahan, pengantaran, dan suruhan umum.
                 </p>
                 <div class="flex items-center gap-3 pt-1">
                     <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
@@ -45,11 +45,6 @@
                     <li>
                         <a href="#form-suruhan" onclick="selectServiceFromCard('Pindahan / Angkut Barang', 'Jasa angkut barang pindahan kos atau rumah dengan aman')" class="hover:text-white transition-colors flex items-center gap-2">
                             <i class="fa-solid fa-truck-ramp-box text-[10px] text-sky-400"></i> Pindahan & Angkut Barang
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#form-suruhan" onclick="selectServiceFromCard('Servis & Cuci AC', 'Cuci AC split dan perbaikan teknisi berpengalaman')" class="hover:text-white transition-colors flex items-center gap-2">
-                            <i class="fa-solid fa-snowflake text-[10px] text-sky-400"></i> Servis & Cuci AC
                         </a>
                     </li>
                     <li>
@@ -108,9 +103,9 @@
                     Punya pertanyaan atau butuh bantuan mendadak? Hubungi kami langsung:
                 </p>
                 <div class="space-y-2">
-                    <a href="https://wa.me/6281234567890?text=Halo%20SayaBantu%20saya%20butuh%20bantuan%20jasa" target="_blank" class="inline-flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/30 text-xs font-bold transition-colors w-full">
-                        <i class="fa-brands fa-whatsapp text-sm text-emerald-400"></i>
-                        <span>WhatsApp: +62 812-3456-7890</span>
+                    <a href="{{ route('customer.pengaduan') }}" class="inline-flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/30 text-xs font-bold transition-colors w-full">
+                        <i class="fa-solid fa-headset text-sm text-sky-400"></i>
+                        <span>Pusat Layanan &amp; Pengaduan CS</span>
                     </a>
                     <div class="flex items-center gap-2 text-xs text-slate-400 px-1">
                         <i class="fa-regular fa-envelope text-slate-400"></i>
@@ -135,9 +130,6 @@
                 </a>
                 <a href="#" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-[#173B67] hover:text-white flex items-center justify-center transition-colors">
                     <i class="fa-brands fa-instagram text-xs"></i>
-                </a>
-                <a href="https://wa.me/6281234567890" target="_blank" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-emerald-600 hover:text-white flex items-center justify-center transition-colors">
-                    <i class="fa-brands fa-whatsapp text-xs"></i>
                 </a>
             </div>
         </div>

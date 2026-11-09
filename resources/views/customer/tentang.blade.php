@@ -9,22 +9,37 @@
 
     @include('customer.partials.mobile-header')
 
-    <section class="relative z-10 px-5 pt-1 pb-5">
-        <a href="{{ route('customer.index') }}" class="inline-flex items-center gap-1.5 text-[10px] font-semibold text-white/75 mb-2">
-            <i class="fa-solid fa-arrow-left text-[9px]"></i>
-            Kembali ke Beranda
-        </a>
-        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/10 border border-white/15 text-[9px] font-bold text-sky-200">
-            <i class="fa-solid fa-circle-info text-[8px]"></i> Informasi Platform
-        </span>
-        <h1 class="mt-2 text-[20px] font-bold tracking-tight text-white">Tentang SayaBantu</h1>
-        <p class="mt-1 text-[10px] text-white/70">Kenali lebih dekat siapa kami dan apa yang kami tawarkan.</p>
-    </section>
+    {{-- PAGE HEADER STANDAR (JUDUL + DESKRIPSI HALAMAN) --}}
+    @include('customer.partials.page-header', [
+        'judul' => 'Tentang SayaBantu',
+        'deskripsi' => 'Kenali lebih dekat siapa kami dan apa yang kami tawarkan.',
+        'kembali' => false,
+    ])
 </div>
 @endsection
 
 @section('content')
 <main class="content-under-gradient px-4 pt-3 pb-4 space-y-3.5">
+
+    {{-- MASKOT HEADER TENTANG KAMI --}}
+    <section class="card-sb p-4 bg-gradient-to-br from-white via-sky-50/50 to-blue-50/40 border border-sky-150 overflow-hidden relative shadow-xs">
+        <div class="flex items-center gap-3.5">
+            <div class="shrink-0 w-20 h-20 rounded-2xl overflow-hidden border-2 border-white shadow-md relative bg-slate-900/10">
+                <img src="{{ asset('images/mascot-helper.jpg') }}" alt="Maskot Bocah SayaBantu" class="w-full h-full object-cover">
+            </div>
+            <div class="flex-1 min-w-0">
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 text-[8.5px] font-extrabold mb-1">
+                    <i class="fa-solid fa-heart text-rose-500 text-[8px]"></i> Sahabat Keseharian Anda
+                </span>
+                <h2 class="text-xs font-bold text-[#0E1D31] leading-tight">
+                    Solusi Cerdas Segala Kebutuhan
+                </h2>
+                <p class="text-[9.5px] text-slate-600 mt-1 leading-relaxed">
+                    Platform on-demand terdepan yang menghubungkan Anda dengan personil terlatih untuk kebersihan, pindahan, belanja, dan servis teknisi.
+                </p>
+            </div>
+        </div>
+    </section>
 
     {{-- APA ITU SAYABANTU --}}
     <section class="card-sb p-4 space-y-2">

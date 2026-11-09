@@ -12,9 +12,9 @@
         <div class="flex items-center gap-2.5">
             <button
                 type="button"
-                class="header-icon shrink-0"
+                class="header-icon shrink-0 cursor-pointer"
                 aria-label="Menu Navigasi"
-                onclick="if(typeof openSbBurger === 'function') openSbBurger(); else { const m = document.getElementById('sbBurgerModal'); if(m) { m.classList.remove('opacity-0', 'invisible', 'pointer-events-none'); document.getElementById('sbBurgerPanel')?.classList.remove('-translate-x-full'); } }"
+                onclick="if(typeof window.openBurgerModal === 'function') { window.openBurgerModal(); } else if(typeof window.openSbBurger === 'function') { window.openSbBurger(); }"
                 title="Buka Navigasi"
             >
                 <i class="fa-solid fa-bars text-[16px]"></i>
@@ -32,22 +32,24 @@
             <button
                 type="button"
                 id="sbNotifHeaderBtn"
-                class="header-icon relative shrink-0"
+                class="header-icon relative shrink-0 cursor-pointer"
                 aria-label="Notifikasi Realtime"
-                onclick="if(typeof openSbNotifSheet === 'function') openSbNotifSheet(); else { const m = document.getElementById('sbNotifSheet'); if(m) { m.classList.remove('opacity-0', 'invisible', 'pointer-events-none'); document.getElementById('sbNotifPanel')?.classList.remove('translate-y-full'); } }"
+                onclick="if(typeof window.openNotificationModal === 'function') { window.openNotificationModal(); } else if(typeof window.openSbNotifSheet === 'function') { window.openSbNotifSheet(); }"
                 title="Pusat Notifikasi"
             >
                 <i class="fa-regular fa-bell text-[16px]"></i>
                 <span id="sbNotifBadge" class="notification-dot" style="display: none;"></span>
+                {{-- Indikator sinkron realtime (diperbarui oleh admin-realtime.js) --}}
+                <span id="sbLiveIndicator" class="hidden absolute -bottom-1 left-1/2 -translate-x-1/2"></span>
             </button>
 
             {{-- Avatar Profile "A" Circle Button --}}
             <button
                 type="button"
                 id="sbAvatarHeaderBtn"
-                class="profile-admin shrink-0"
+                class="profile-admin shrink-0 cursor-pointer"
                 aria-label="Profil Admin"
-                onclick="if(typeof openSbAvatarMenu === 'function') openSbAvatarMenu(); else { const m = document.getElementById('sbAvatarMenuModal'); if(m) { m.classList.remove('opacity-0', 'invisible', 'pointer-events-none'); document.getElementById('sbAvatarMenuPanel')?.classList.remove('translate-y-full'); } }"
+                onclick="if(typeof window.openProfileQuickModal === 'function') { window.openProfileQuickModal(); } else if(typeof window.openSbAvatarMenu === 'function') { window.openSbAvatarMenu(); }"
                 title="Menu Akun Admin"
             >
                 A

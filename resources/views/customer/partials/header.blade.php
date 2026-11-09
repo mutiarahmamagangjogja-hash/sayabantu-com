@@ -1,6 +1,5 @@
 {{-- =========================================================
      CUSTOMER HEADER - SAYABANTU.COM
-     Terinspirasi dari Santosuruh.co.id dengan Modern Polish
 ========================================================= --}}
 
 <header id="main_header" class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs transition-all">
@@ -30,7 +29,7 @@
                     <input
                         type="text"
                         id="customerSearchInput"
-                        placeholder="Mau cari bantuan apa di SayaBantu? (AC, Bersih-bersih, Pindahan...)"
+                        placeholder="Mau cari bantuan apa? (Bersih-bersih, Pindahan, Antar Barang...)"
                         onkeyup="handleCustomerSearch(this.value)"
                         class="w-full pl-9 pr-4 py-2 text-xs rounded-full border border-slate-200 bg-slate-50/80 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:bg-white focus:ring-2 focus:ring-sky-100 transition-all shadow-inner"
                     >
@@ -40,7 +39,7 @@
             {{-- ACTION PILLS & USER BUTTONS --}}
             <div class="flex items-center gap-2 sm:gap-3">
                 
-                {{-- PILLS CUSTOMER & MITRA (PERSIS SANTOSURUH) --}}
+                {{-- PILLS CUSTOMER & MITRA --}}
                 <div class="flex items-center p-1 bg-slate-100 rounded-full border border-slate-200 text-xs font-bold">
                     <span class="px-3 py-1 rounded-full bg-[#173B67] text-white shadow-xs cursor-default">
                         Customer
@@ -137,7 +136,7 @@
                 </li>
                 <li>
                     <a href="#testimoni" class="px-3.5 py-1.5 rounded-lg hover:text-[#173B67] hover:bg-slate-100 transition-colors inline-flex items-center gap-1.5">
-                        <i class="fa-solid fa-star text-xs text-amber-400"></i> Testimoni
+                        <i class="fa-solid fa-star text-xs text-yellow-400"></i> Testimoni
                     </a>
                 </li>
                 <li class="ml-auto">
@@ -167,7 +166,7 @@
             <i class="fa-solid fa-circle-check mr-2 text-emerald-500"></i> Layanan Selesai
         </a>
         <a href="#testimoni" onclick="toggleMobileMenu()" class="block px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-50">
-            <i class="fa-solid fa-star mr-2 text-amber-400"></i> Testimoni Pelanggan
+            <i class="fa-solid fa-star mr-2 text-yellow-400"></i> Testimoni Pelanggan
         </a>
         <div class="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
             <button type="button" onclick="openModalLacak(); toggleMobileMenu();" class="flex-1 py-2 rounded-xl bg-sky-50 text-[#173B67] text-xs font-bold text-center">

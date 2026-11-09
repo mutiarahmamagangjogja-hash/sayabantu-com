@@ -9,17 +9,12 @@
 
     @include('customer.partials.mobile-header')
 
-    <section class="relative z-10 px-5 pt-1 pb-5">
-        <a href="{{ route('customer.index') }}" class="inline-flex items-center gap-1.5 text-[10px] font-semibold text-white/75 mb-2">
-            <i class="fa-solid fa-arrow-left text-[9px]"></i>
-            Kembali ke Beranda
-        </a>
-        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/10 border border-white/15 text-[9px] font-bold text-sky-200">
-            <i class="fa-solid fa-file-contract text-[8px]"></i> Ketentuan Layanan
-        </span>
-        <h1 class="mt-2 text-[20px] font-bold tracking-tight text-white">Syarat &amp; Ketentuan</h1>
-        <p class="mt-1 text-[10px] text-white/70">Aturan penggunaan platform SayaBantu.com.</p>
-    </section>
+    {{-- PAGE HEADER STANDAR (JUDUL + DESKRIPSI HALAMAN) --}}
+    @include('customer.partials.page-header', [
+        'judul' => 'Syarat & Ketentuan',
+        'deskripsi' => 'Aturan penggunaan platform SayaBantu.com.',
+        'kembali' => false,
+    ])
 </div>
 @endsection
 
