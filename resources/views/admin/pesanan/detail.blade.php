@@ -359,15 +359,66 @@
                 </div>
             </div>
 
+            {{-- KARTU BUKTI PEMBAYARAN CUSTOMER --}}
+            <div class="mt-4 rounded-[16px] border border-slate-200/90 bg-white p-3.5 shadow-2xs space-y-2.5">
+                <div class="flex items-center justify-between">
+                    <span class="flex items-center gap-1.5 text-[10px] font-bold text-slate-800">
+                        <i class="fa-solid fa-file-invoice-dollar text-emerald-600"></i>
+                        Bukti Pembayaran Customer
+                    </span>
+                    <span class="text-[8.5px] font-extrabold px-2 py-0.5 rounded-full {{ $isPaid ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : ($isPaymentPending ? 'bg-amber-100 text-amber-800 border border-amber-300' : 'bg-slate-100 text-slate-600') }}">
+                        {{ $isPaid ? 'Terverifikasi Admin ✓' : ($isPaymentPending ? 'Wajib Diperiksa' : 'Belum Ada Bukti') }}
+                    </span>
+                </div>
+
+                @if($isPaymentPending || $isPaid)
+                    <div class="flex items-center gap-3 p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
+                        {{-- Thumbnail Preview --}}
+                        <div onclick="openBuktiPembayaranModal()" class="w-14 h-14 rounded-lg overflow-hidden border border-slate-300 bg-slate-100 shrink-0 relative cursor-pointer group hover:ring-2 hover:ring-emerald-500 transition-all">
+                            @if(!empty($order['payment_proof']))
+                                <img src="{{ $order['payment_proof'] }}" alt="Bukti Pembayaran" class="w-full h-full object-cover">
+                            @else
+                                <div class="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-emerald-50 to-teal-50 text-emerald-600">
+                                    <i class="fa-solid fa-receipt text-lg"></i>
+                                    <span class="text-[7px] font-bold mt-0.5">Struk Bayar</span>
+                                </div>
+                            @endif
+                            <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs transition-opacity">
+                                <i class="fa-solid fa-magnifying-glass-plus"></i>
+                            </div>
+                        </div>
+
+                        {{-- Metadata --}}
+                        <div class="flex-1 min-w-0 text-[9px] space-y-0.5">
+                            <strong class="text-[10px] font-bold text-slate-800 block truncate">
+                                {{ !empty($order['payment_proof']) ? 'Lampiran Bukti Transfer Customer' : 'Struk Resmi Pembayaran SayaBantu' }}
+                            </strong>
+                            <p class="text-slate-500">Metode: <strong class="text-slate-700">{{ $order['payment_method'] ?? 'QRIS' }}</strong> • {{ $order['total_price'] ?? ($order['service_price'] ?? 'Rp 20.000') }}</p>
+                            <p class="text-slate-400 text-[8px]">{{ $order['payment_time'] ?? 'Waktu tidak tercatat' }}</p>
+                        </div>
+
+                        {{-- Action View Button --}}
+                        <button type="button" onclick="openBuktiPembayaranModal()" class="shrink-0 px-2.5 py-1.5 rounded-lg bg-[#173B67] hover:bg-[#0E1D31] text-white text-[9px] font-bold flex items-center gap-1 cursor-pointer transition-colors shadow-2xs">
+                            <i class="fa-solid fa-eye text-[8px]"></i>
+                            <span>Lihat Bukti</span>
+                        </button>
+                    </div>
+                @else
+                    <div class="p-3 rounded-xl bg-slate-50 border border-dashed border-slate-200 text-center text-slate-400 text-[9px]">
+                        Customer belum mengunggah atau melaporkan bukti pembayaran.
+                    </div>
+                @endif
+            </div>
+
             @if($isPaymentPending)
                 <button
                     type="button"
                     id="btnAdminConfirmPayment"
-                    onclick="handleAdminConfirmPayment()"
+                    onclick="openBuktiPembayaranModal(true)"
                     class="mt-3 flex w-full items-center justify-center gap-2 rounded-[14px] bg-emerald-600 px-4 py-3 text-[9px] font-bold text-white shadow-sm transition hover:bg-emerald-700 active:scale-[0.99] cursor-pointer"
                 >
-                    <i class="fa-solid fa-circle-check"></i>
-                    <span>Konfirmasi Pembayaran Customer</span>
+                    <i class="fa-solid fa-receipt text-xs"></i>
+                    <span>Periksa Bukti &amp; Konfirmasi Pembayaran Customer</span>
                 </button>
             @endif
 
@@ -493,6 +544,15 @@
                             <span class="flex h-5 w-5 items-center justify-center rounded-full bg-green-500 text-[8px] text-white">✓</span>
                             <span>Pembayaran Dikonfirmasi Admin • {{ $order['payment_method'] ?? 'Metode belum tercatat' }}</span>
                         </div>
+                    @elseif($isPaymentPending)
+                        <button
+                            type="button"
+                            onclick="openBuktiPembayaranModal(true)"
+                            class="flex w-full items-center justify-center gap-2 rounded-[14px] bg-emerald-600 px-4 py-3 text-[9px] font-bold text-white shadow-sm transition hover:bg-emerald-700 active:scale-[0.99] cursor-pointer"
+                        >
+                            <i class="fa-solid fa-receipt"></i>
+                            <span>Periksa Bukti &amp; Konfirmasi Pembayaran Customer</span>
+                        </button>
                     @else
                         <div class="flex w-full items-center justify-center gap-2 rounded-[14px] border border-amber-300 bg-amber-50 px-4 py-3 text-[9px] font-bold text-amber-800">
                             Menunggu Customer Melakukan Pembayaran
@@ -636,6 +696,122 @@
      MODAL DIALOG TINDAKAN ADMIN
 ========================================================= --}}
 @push('modals')
+
+{{-- MODAL PEMERIKSAAN BUKTI PEMBAYARAN --}}
+<div id="buktiPembayaranModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 p-4 backdrop-blur-xs pointer-events-none" style="display: none;">
+    <div class="w-full max-w-md rounded-[24px] bg-white p-5 shadow-2xl transition-all pointer-events-auto max-h-[92vh] flex flex-col">
+        {{-- Header --}}
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100 shrink-0">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-sm font-bold">
+                    <i class="fa-solid fa-receipt"></i>
+                </div>
+                <div>
+                    <h4 class="text-xs font-black text-slate-900 leading-tight">Bukti Pembayaran Customer</h4>
+                    <p class="text-[9px] text-slate-400">Periksa bukti transfer sebelum melakukan konfirmasi</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeModal('buktiPembayaranModal')" class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-400 hover:text-slate-700 flex items-center justify-center cursor-pointer transition-colors">
+                <i class="fa-solid fa-xmark text-xs"></i>
+            </button>
+        </div>
+
+        {{-- Body --}}
+        <div class="py-3.5 space-y-3 overflow-y-auto flex-1 pr-1">
+            {{-- Image / Struk Proof Preview --}}
+            <div class="rounded-2xl border-2 border-slate-200 bg-slate-900 overflow-hidden relative group text-center">
+                @if(!empty($order['payment_proof']))
+                    <div class="p-2 bg-slate-950">
+                        <img id="modalBuktiPembayaranImg" src="{{ $order['payment_proof'] }}" alt="Bukti Pembayaran" class="w-full max-h-80 object-contain mx-auto rounded-lg">
+                    </div>
+                    <div class="p-2 bg-slate-800 flex items-center justify-between text-[9px] text-white">
+                        <span class="flex items-center gap-1 font-semibold text-emerald-400">
+                            <i class="fa-solid fa-check"></i> Bukti Lampiran Customer
+                        </span>
+                        <a href="{{ $order['payment_proof'] }}" target="_blank" class="text-sky-300 hover:text-sky-200 flex items-center gap-1 underline font-bold">
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[8px]"></i> Lihat Ukuran Penuh
+                        </a>
+                    </div>
+                @else
+                    {{-- Digital Struk Transfer Rekber SayaBantu --}}
+                    <div id="modalBuktiDigitalSlip" class="p-5 bg-gradient-to-b from-white via-slate-50 to-white text-slate-800 text-left space-y-3 font-sans">
+                        <div class="flex items-center justify-between border-b border-dashed border-slate-300 pb-3">
+                            <div>
+                                <span class="text-xs font-black tracking-tight text-[#173B67] block">SayaBantu.com</span>
+                                <span class="text-[8px] text-slate-400">Struk Transaksi Resmi Rekber</span>
+                            </div>
+                            <span class="text-[9px] font-bold px-2 py-0.5 rounded-full {{ $isPaid ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-amber-100 text-amber-800 border border-amber-300' }}">
+                                {{ $isPaid ? 'Lunas / Terverifikasi' : 'Menunggu Verifikasi Admin' }}
+                            </span>
+                        </div>
+                        <div class="text-center py-2.5 bg-slate-100/80 rounded-xl border border-slate-200/60">
+                            <span class="text-[8.5px] text-slate-500 block uppercase font-bold tracking-wider">Total Pembayaran</span>
+                            <strong class="text-lg font-black text-emerald-700 block">{{ $order['total_price'] ?? ($order['service_price'] ?? 'Rp 20.000') }}</strong>
+                        </div>
+                        <div class="space-y-1.5 text-[9.5px]">
+                            <div class="flex justify-between">
+                                <span class="text-slate-500">Nomor Transaksi:</span>
+                                <strong class="font-mono text-slate-800">{{ $order['code'] ?? '#SB-SURUH' }}</strong>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-500">Nama Customer:</span>
+                                <strong class="text-slate-800">{{ $order['customer'] ?? 'Customer' }}</strong>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-500">Layanan:</span>
+                                <strong class="text-slate-800">{{ $order['service'] ?? 'Suruhan' }}</strong>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-500">Mitra Ditugaskan:</span>
+                                <strong class="text-slate-800">{{ $order['mitra'] ?? 'Mitra SayaBantu' }}</strong>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-500">Metode Bayar:</span>
+                                <strong class="text-slate-800">{{ $order['payment_method'] ?? 'QRIS' }}</strong>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-500">Waktu Laporan:</span>
+                                <span class="text-slate-700 font-medium">{{ $order['payment_time'] ?? 'Hari ini' }}</span>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+            </div>
+
+            {{-- Ringkasan Panduan Verifikasi --}}
+            <div class="p-3 rounded-xl bg-amber-50/80 border border-amber-200/90 space-y-1">
+                <span class="text-[9.5px] font-bold text-amber-900 flex items-center gap-1">
+                    <i class="fa-solid fa-triangle-exclamation text-amber-600"></i> Panduan Verifikasi Admin
+                </span>
+                <p class="text-[8.5px] text-amber-800 leading-relaxed">
+                    Pastikan nominal <strong>{{ $order['total_price'] ?? ($order['service_price'] ?? 'Rp 20.000') }}</strong> telah sesuai dengan mutasi rekening/QRIS penerima SayaBantu sebelum menekan tombol konfirmasi.
+                </p>
+            </div>
+        </div>
+
+        {{-- Footer Actions --}}
+        <div class="pt-3 border-t border-slate-100 flex items-center gap-2 shrink-0">
+            <button
+                type="button"
+                onclick="closeModal('buktiPembayaranModal')"
+                class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px] font-bold transition text-center cursor-pointer"
+            >
+                Tutup
+            </button>
+            @if($isPaymentPending)
+                <button
+                    type="button"
+                    id="btnModalExecuteConfirmPayment"
+                    onclick="executeAdminConfirmPaymentFromModal()"
+                    class="flex-[1.5] py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white text-[10px] font-extrabold transition shadow-md flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                    <i class="fa-solid fa-circle-check text-xs"></i>
+                    <span>Konfirmasi Pembayaran Sesuai</span>
+                </button>
+            @endif
+        </div>
+    </div>
+</div>
 
 {{-- MODAL TANDAI SEBAGAI KONFLIK --}}
 <div id="markConflictModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 p-4 backdrop-blur-xs pointer-events-none" style="display: none;">
@@ -860,6 +1036,17 @@
     window.openMarkConflictModal = function() { openModal('markConflictModal'); };
     window.openResolveConflictModal = function() { openModal('resolveConflictModal'); };
     window.openCancelOrderModal = function() { openModal('cancelOrderModal'); };
+    window.openBuktiPembayaranModal = function() { openModal('buktiPembayaranModal'); };
+    window.closeBuktiPembayaranModal = function() { closeModal('buktiPembayaranModal'); };
+
+    window.executeAdminConfirmPaymentFromModal = async function() {
+        const modalBtn = document.getElementById('btnModalExecuteConfirmPayment');
+        if (modalBtn) {
+            modalBtn.disabled = true;
+            modalBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Memverifikasi...</span>';
+        }
+        await handleAdminConfirmPayment(true);
+    };
 
     window.toggleCustomCancelReason = function(showCustom) {
         const box = document.getElementById('customCancelReasonBox');
@@ -900,11 +1087,21 @@
         }
     }
 
-    window.handleAdminConfirmPayment = async function() {
+    window.handleAdminConfirmPayment = async function(isFromModal = false) {
+        if (!isFromModal) {
+            openBuktiPembayaranModal();
+            return;
+        }
+
         const button = document.getElementById('btnAdminConfirmPayment');
+        const modalBtn = document.getElementById('btnModalExecuteConfirmPayment');
         if (button) {
             button.disabled = true;
             button.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Memverifikasi pembayaran...</span>';
+        }
+        if (modalBtn) {
+            modalBtn.disabled = true;
+            modalBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Memverifikasi pembayaran...</span>';
         }
 
         try {
@@ -931,7 +1128,11 @@
             notify('Konfirmasi Gagal', error.message || 'Terjadi kesalahan saat mengonfirmasi pembayaran.', 'error');
             if (button) {
                 button.disabled = false;
-                button.innerHTML = '<i class="fa-solid fa-circle-check"></i><span>Konfirmasi Pembayaran Customer</span>';
+                button.innerHTML = '<i class="fa-solid fa-receipt text-xs"></i><span>Periksa Bukti &amp; Konfirmasi Pembayaran Customer</span>';
+            }
+            if (modalBtn) {
+                modalBtn.disabled = false;
+                modalBtn.innerHTML = '<i class="fa-solid fa-circle-check text-xs"></i><span>Konfirmasi Pembayaran Sesuai</span>';
             }
         }
     };

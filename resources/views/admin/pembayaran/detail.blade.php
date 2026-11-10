@@ -13,6 +13,7 @@
 @php
     $isReleased = in_array($payment['escrow_status'] ?? '', ['released_to_mitra', 'released']);
     $isPaymentPending = $payment['is_pending_verification'] ?? false;
+    $isVerified = $payment['is_verified'] ?? false;
     $isRefunded = $payment['is_refunded'] ?? false;
     $isWorkComplete = $payment['is_work_completed'] ?? false;
 @endphp
@@ -115,6 +116,44 @@
                 Pembayaran dicatat oleh Customer pada {{ $payment['payment_submitted_at'] }}
             </p>
         @endif
+    </section>
+
+    {{-- KARTU BUKTI PEMBAYARAN CUSTOMER --}}
+    <section class="p-4 rounded-[22px] bg-white border border-slate-200/90 shadow-xs space-y-2.5">
+        <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+            <h4 class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                <i class="fa-solid fa-file-invoice-dollar text-emerald-600"></i> Bukti Pembayaran Customer
+            </h4>
+            <span class="text-[8.5px] font-extrabold px-2 py-0.5 rounded-full {{ $isVerified ? 'bg-emerald-100 text-emerald-800' : ($isPaymentPending ? 'bg-amber-100 text-amber-800 border border-amber-300' : 'bg-slate-100 text-slate-600') }}">
+                {{ $isVerified ? 'Terverifikasi Admin ✓' : ($isPaymentPending ? 'Perlu Diperiksa' : 'Belum Ada Bukti') }}
+            </span>
+        </div>
+
+        <div class="flex items-center gap-3 p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
+            <div class="w-14 h-14 rounded-lg overflow-hidden border border-slate-300 bg-slate-100 shrink-0 relative">
+                @if(!empty($payment['payment_proof']))
+                    <img src="{{ $payment['payment_proof'] }}" alt="Bukti Pembayaran" class="w-full h-full object-cover">
+                @else
+                    <div class="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-emerald-50 to-teal-50 text-emerald-600">
+                        <i class="fa-solid fa-receipt text-lg"></i>
+                        <span class="text-[7px] font-bold mt-0.5">Struk Bayar</span>
+                    </div>
+                @endif
+            </div>
+
+            <div class="flex-1 min-w-0 text-[9px] space-y-0.5">
+                <strong class="text-[10px] font-bold text-slate-800 block truncate">
+                    {{ !empty($payment['payment_proof']) ? 'Lampiran Bukti Transfer Customer' : 'Struk Resmi Pembayaran SayaBantu' }}
+                </strong>
+                <p class="text-slate-500">Metode: <strong class="text-slate-700">{{ $payment['metode'] }}</strong> • Rp {{ number_format($payment['total_bayar'], 0, ',', '.') }}</p>
+                <p class="text-slate-400 text-[8px]">{{ $payment['waktu_bayar'] }}</p>
+            </div>
+
+            <a href="{{ route('admin.pesanan.detail', $payment['clean_order_code']) }}" class="shrink-0 px-2.5 py-1.5 rounded-lg bg-[#173B67] hover:bg-[#0E1D31] text-white text-[9px] font-bold flex items-center gap-1 cursor-pointer transition-colors shadow-2xs">
+                <i class="fa-solid fa-eye text-[8px]"></i>
+                <span>Lihat di Pesanan</span>
+            </a>
+        </div>
     </section>
 
     {{-- 2. KARTU INFORMASI TRANSAKSI & PARA PIHAK --}}

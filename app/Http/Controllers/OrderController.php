@@ -1013,6 +1013,7 @@ class OrderController extends Controller
 
         $validated = $request->validate([
             'metode' => ['required', 'string', 'max:100'],
+            'bukti' => ['nullable'],
         ]);
         if (in_array($order->status, ['cancelled_by_admin', 'cancelled_by_customer', 'dibatalkan'], true)
             || $order->escrow_status === 'refunded') {
@@ -1040,11 +1041,20 @@ class OrderController extends Controller
             ]);
         }
 
+        $paymentProof = null;
+        if ($request->hasFile('bukti')) {
+            $path = $request->file('bukti')->store('payments', 'public');
+            $paymentProof = asset('storage/'.$path);
+        } elseif ($request->filled('bukti')) {
+            $paymentProof = $request->input('bukti');
+        }
+
         $order->update([
             'status' => 'menunggu_konfirmasi_pembayaran',
             'step' => 7,
             'escrow_status' => 'holding',
             'payment_method' => $validated['metode'],
+            'payment_proof' => $paymentProof,
             'payment_submitted_at' => now(),
         ]);
 

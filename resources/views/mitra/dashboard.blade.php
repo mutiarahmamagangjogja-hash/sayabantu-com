@@ -9,11 +9,13 @@
     $mitraAuthPhone = $currentMitra?->phone ?? (session('mitra_auth.phone') ?? '');
     $mitraAuthEmail = $currentMitra?->email ?: (session('mitra_auth.email') ?? '');
     $mitraAuthInitial = strtoupper(substr(trim($mitraAuthName), 0, 1));
+    $mitraReviews = $mitraReviews ?? collect();
+    $mitraCompletedOrders = $mitraCompletedOrders ?? collect();
     $mitraAuthRating = $currentMitra?->reviewed_orders_avg_review_rating === null
-        ? null
+        ? ($mitraReviews->count() > 0 ? number_format((float) $mitraReviews->avg('review_rating'), 1) : null)
         : number_format((float) $currentMitra->reviewed_orders_avg_review_rating, 1);
-    $mitraAuthReviewCount = (int) ($currentMitra?->reviewed_orders_count ?? 0);
-    $mitraAuthTasks = (int) ($currentMitra?->completed_orders_count ?? 0);
+    $mitraAuthReviewCount = max((int) ($currentMitra?->reviewed_orders_count ?? 0), $mitraReviews->count());
+    $mitraAuthTasks = max((int) ($currentMitra?->completed_orders_count ?? 0), $mitraCompletedOrders->count(), (int) ($currentMitra?->tasks ?? 0));
     $mitraAuthArea = $currentMitra?->area ? ($currentMitra->kota ? $currentMitra->kota . ' (' . $currentMitra->area . ')' : $currentMitra->area) : ($currentMitra?->kota ?: 'Wilayah belum diatur');
     $mitraAuthKeahlian = $currentMitra?->keahlian ?: ($currentMitra?->service ?: 'Belum ada layanan');
 @endphp
@@ -330,19 +332,133 @@
             <div class="grid grid-cols-3 gap-2 text-center">
                 <button type="button" onclick="showMitraStatDetail('tuntas')" title="Detail pekerjaan tuntas"
                     class="p-2.5 rounded-xl bg-slate-50 border border-slate-100 cursor-pointer hover:border-sky-300 hover:shadow-xs active:scale-[0.97] transition-all">
-                    <strong id="statRingkasanTotalTuntas" class="text-sm font-black text-slate-900 block">0</strong>
+                    <strong id="statRingkasanTotalTuntas" class="text-sm font-black text-slate-900 block">{{ $mitraAuthTasks }}</strong>
                     <span class="text-[8.5px] text-slate-400 block mt-0.5">Total Tuntas</span>
                 </button>
                 <button type="button" onclick="showMitraStatDetail('rating')" title="Detail ulasan pelanggan"
                     class="p-2.5 rounded-xl bg-amber-50/70 border border-amber-100 cursor-pointer hover:border-amber-400 hover:shadow-xs active:scale-[0.97] transition-all">
-                    <strong id="statRingkasanRating" class="text-sm font-black text-amber-600 block">- <span class="text-yellow-400">★</span></strong>
-                    <span class="text-[8.5px] text-amber-800/80 block mt-0.5">0 Ulasan</span>
+                    <strong id="statRingkasanRating" class="text-sm font-black text-amber-600 block">
+                        {{ $mitraAuthRating !== null ? $mitraAuthRating : '-' }} <span class="text-yellow-400">★</span>
+                    </strong>
+                    <span id="statRingkasanUlasanCount" class="text-[8.5px] text-amber-800/80 block mt-0.5">{{ $mitraAuthReviewCount }} Ulasan</span>
                 </button>
                 <button type="button" onclick="showMitraStatDetail('penyelesaian')" title="Detail tingkat penyelesaian"
                     class="p-2.5 rounded-xl bg-sky-50/70 border border-sky-100 cursor-pointer hover:border-sky-400 hover:shadow-xs active:scale-[0.97] transition-all">
-                    <strong id="statRingkasanPenyelesaian" class="text-sm font-black text-[#173B67] block">0%</strong>
+                    <strong id="statRingkasanPenyelesaian" class="text-sm font-black text-[#173B67] block">{{ $mitraAuthTasks > 0 ? '100%' : '0%' }}</strong>
                     <span class="text-[8.5px] text-slate-500 block mt-0.5">Penyelesaian</span>
                 </button>
+            </div>
+        </section>
+
+        {{-- RINGKASAN TRANSAKSI --}}
+        <section class="card-sb p-3.5 space-y-2.5">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                        <i class="fa-solid fa-receipt text-[#173B67]"></i>
+                        <span>Ringkasan Transaksi</span>
+                    </h3>
+                    <p class="text-[9px] text-slate-400">Daftar transaksi dan pendapatan dari pekerjaan yang selesai</p>
+                </div>
+                <button
+                    type="button"
+                    onclick="switchMitraNav('saldo')"
+                    class="text-[9.5px] font-bold text-[#173B67] hover:underline cursor-pointer"
+                >
+                    Riwayat Saldo →
+                </button>
+            </div>
+
+            <div id="mitraDashboardTransaksiList" class="space-y-2">
+                @forelse($mitraCompletedOrders as $trxOrder)
+                    @php
+                        $nom = $trxOrder->mitra_fee ?: (int) round(($trxOrder->nominal ?: 20000) * 0.9);
+                    @endphp
+                    <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 hover:border-sky-300 transition-all flex items-start justify-between gap-2.5">
+                        <div class="space-y-1 min-w-0">
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-sky-100 text-[#173B67]">{{ $trxOrder->code }}</span>
+                                <span class="text-[10px] font-bold text-slate-800 truncate">{{ $trxOrder->layanan }}</span>
+                            </div>
+                            <p class="text-[9px] text-slate-500">Customer: <strong class="text-slate-700">{{ $trxOrder->customer_name ?: 'Customer' }}</strong> • {{ $trxOrder->jadwal ?: ($trxOrder->updated_at ? $trxOrder->updated_at->format('d M Y, H:i') : '') }}</p>
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                @if(in_array($trxOrder->escrow_status, ['released_to_mitra', 'released'], true))
+                                    <span class="inline-flex items-center gap-1 text-[8.5px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                                        <i class="fa-solid fa-check-double text-[8px]"></i> Dana Diteruskan
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center gap-1 text-[8.5px] font-bold text-sky-600 bg-sky-50 px-1.5 py-0.5 rounded border border-sky-200">
+                                        <i class="fa-solid fa-clock text-[8px]"></i> Selesai (Dana di Escrow)
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="text-right shrink-0">
+                            <span class="text-[8.5px] text-slate-400 block">Pendapatan</span>
+                            <strong class="text-xs font-black text-emerald-600 block">Rp {{ number_format($nom, 0, ',', '.') }}</strong>
+                        </div>
+                    </div>
+                @empty
+                    <div id="mitraDashboardEmptyTransaksi" class="p-4 rounded-xl bg-slate-50 border border-dashed border-slate-200 text-center space-y-1">
+                        <i class="fa-solid fa-receipt text-slate-300 text-sm"></i>
+                        <p class="text-[10px] font-bold text-slate-600">Belum Ada Transaksi</p>
+                        <p class="text-[9px] text-slate-400">Ringkasan transaksi pekerjaan selesai akan muncul di sini.</p>
+                    </div>
+                @endforelse
+            </div>
+        </section>
+
+        {{-- ULASAN DARI CUSTOMER --}}
+        <section class="card-sb p-3.5 space-y-2.5">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                        <i class="fa-solid fa-star text-amber-500"></i>
+                        <span>Ulasan dari Customer</span>
+                    </h3>
+                    <p class="text-[9px] text-slate-400">Penilaian dan kepuasan pelanggan atas layanan Anda</p>
+                </div>
+                <button
+                    type="button"
+                    onclick="switchMitraNav('ulasan')"
+                    class="text-[9.5px] font-bold text-[#173B67] hover:underline cursor-pointer"
+                >
+                    Lihat Semua →
+                </button>
+            </div>
+
+            <div id="mitraDashboardUlasanList" class="space-y-2">
+                @forelse($mitraReviews as $rev)
+                    <div class="p-3 rounded-xl bg-amber-50/40 border border-amber-200/70 hover:border-amber-400 transition-all space-y-1.5">
+                        <div class="flex items-center justify-between gap-2">
+                            <div class="flex items-center gap-2">
+                                <div class="w-6 h-6 rounded-full bg-[#173B67] text-white text-[9px] font-bold flex items-center justify-center">
+                                    {{ strtoupper(substr($rev->customer_name ?: 'C', 0, 1)) }}
+                                </div>
+                                <strong class="text-[10px] font-bold text-slate-800">{{ $rev->customer_name ?: 'Customer' }}</strong>
+                            </div>
+                            <span class="text-amber-500 text-[10px] font-bold flex items-center gap-0.5">
+                                {{ str_repeat('★', (int) $rev->review_rating) }}{{ str_repeat('☆', 5 - (int) $rev->review_rating) }}
+                                <span class="ml-1 text-[9px] text-slate-600 font-semibold">{{ number_format((float) $rev->review_rating, 1) }}</span>
+                            </span>
+                        </div>
+                        @if($rev->review_comment)
+                            <p class="text-[10px] text-slate-700 italic bg-white/70 p-2 rounded-lg border border-amber-100/60 leading-relaxed">
+                                "{{ $rev->review_comment }}"
+                            </p>
+                        @endif
+                        <div class="flex items-center justify-between text-[8.5px] text-slate-400">
+                            <span>{{ $rev->layanan }}</span>
+                            <span>{{ $rev->reviewed_at ? $rev->reviewed_at->format('d M Y, H:i') : '' }}</span>
+                        </div>
+                    </div>
+                @empty
+                    <div id="mitraDashboardEmptyUlasan" class="p-4 rounded-xl bg-slate-50 border border-dashed border-slate-200 text-center space-y-1">
+                        <i class="fa-solid fa-star text-slate-300 text-sm"></i>
+                        <p class="text-[10px] font-bold text-slate-600">Belum Ada Ulasan</p>
+                        <p class="text-[9px] text-slate-400">Ulasan dan rating dari customer akan muncul di sini setelah pekerjaan selesai.</p>
+                    </div>
+                @endforelse
             </div>
         </section>
 
@@ -957,7 +1073,7 @@
 
         {{-- DAFTAR ULASAN LENGKAP --}}
         <section class="card-sb p-3.5 space-y-3">
-            <div class="space-y-2.5">
+            <div class="space-y-2.5" id="mitraFullUlasanList">
                 @forelse(($mitraReviews ?? collect()) as $review)
                     <article class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
                         <div class="flex items-center justify-between gap-2">
@@ -3624,6 +3740,7 @@
             !o.selectedMitraId ||
             o.selectedMitraId === myMitraId ||
             o.mitraId === myMitraId ||
+            o.mitra_id === myMitraId ||
             o.selectedMitraId === 'MTR-001' ||
             (o.mitra_name && (o.mitra_name === myName || o.mitra_name.toLowerCase() === myName.toLowerCase())) ||
             (o.mitraName && (o.mitraName === myName || o.mitraName.toLowerCase() === myName.toLowerCase())) ||
@@ -3697,6 +3814,204 @@
         if (btnBerlangsung) btnBerlangsung.textContent = `Berlangsung (${berlangsungOrders.length})`;
         if (btnSelesai) btnSelesai.textContent = `Selesai (${selesaiOrders.length})`;
         if (btnDibatalkan) btnDibatalkan.textContent = `Dibatalkan (${dibatalkanOrders.length})`;
+
+        // Update Ringkasan Statistik Pekerjaan Selesai
+        const reviewedOrders = selesaiOrders.filter(o => o.review_rating !== null && o.review_rating !== undefined && Number(o.review_rating) > 0);
+        const totalTuntasCount = selesaiOrders.length;
+        const totalReviewedCount = reviewedOrders.length;
+        let avgRatingVal = 0;
+        if (totalReviewedCount > 0) {
+            avgRatingVal = (reviewedOrders.reduce((sum, o) => sum + parseFloat(o.review_rating), 0) / totalReviewedCount).toFixed(1);
+        } else if (window.CURRENT_MITRA_DATA && window.CURRENT_MITRA_DATA.rating) {
+            avgRatingVal = Number(window.CURRENT_MITRA_DATA.rating).toFixed(1);
+        }
+
+        const totalAssignedOrders = penawaranOrders.length + dikonfirmasiOrders.length + berlangsungOrders.length + selesaiOrders.length;
+        const pctPenyelesaian = totalAssignedOrders > 0
+            ? Math.round((totalTuntasCount / totalAssignedOrders) * 100)
+            : (totalTuntasCount > 0 ? 100 : 0);
+
+        const statTuntasEl = document.getElementById('statRingkasanTotalTuntas');
+        const statRatingEl = document.getElementById('statRingkasanRating');
+        const statUlasanCountEl = document.getElementById('statRingkasanUlasanCount');
+        const statPenyelesaianEl = document.getElementById('statRingkasanPenyelesaian');
+
+        if (statTuntasEl) {
+            statTuntasEl.textContent = totalTuntasCount;
+        }
+        if (statRatingEl) {
+            if (avgRatingVal > 0) {
+                statRatingEl.innerHTML = `${avgRatingVal} <span class="text-yellow-400">★</span>`;
+            } else {
+                statRatingEl.innerHTML = `- <span class="text-yellow-400">★</span>`;
+            }
+        }
+        if (statUlasanCountEl) {
+            statUlasanCountEl.textContent = `${totalReviewedCount} Ulasan`;
+        }
+        if (statPenyelesaianEl) {
+            statPenyelesaianEl.textContent = `${pctPenyelesaian}%`;
+        }
+
+        // Update Ringkasan Transaksi di Tab Dashboard
+        const dashTrxContainer = document.getElementById('mitraDashboardTransaksiList');
+        if (dashTrxContainer) {
+            if (selesaiOrders.length === 0) {
+                dashTrxContainer.innerHTML = `
+                    <div id="mitraDashboardEmptyTransaksi" class="p-4 rounded-xl bg-slate-50 border border-dashed border-slate-200 text-center space-y-1">
+                        <i class="fa-solid fa-receipt text-slate-300 text-sm"></i>
+                        <p class="text-[10px] font-bold text-slate-600">Belum Ada Transaksi</p>
+                        <p class="text-[9px] text-slate-400">Ringkasan transaksi pekerjaan selesai akan muncul di sini.</p>
+                    </div>
+                `;
+            } else {
+                dashTrxContainer.innerHTML = selesaiOrders.map(o => {
+                    const nom = o.mitra_fee || Math.round((parseInt(String(o.nominal || o.budget || o.biaya || '20000').replace(/[^0-9]/g, ''), 10) || 20000) * 0.9);
+                    const isReleased = ['released_to_mitra', 'released'].includes(o.escrow_status);
+                    const code = o.code || o.id || '#SB';
+                    const cust = o.customerName || o.customer_name || 'Customer';
+                    const srv = o.layanan || 'Suruhan';
+                    const time = o.jadwal || (o.reviewed_at ? new Date(o.reviewed_at).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'}) : 'Selesai');
+                    return `
+                        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 hover:border-sky-300 transition-all flex items-start justify-between gap-2.5">
+                            <div class="space-y-1 min-w-0">
+                                <div class="flex items-center gap-1.5 flex-wrap">
+                                    <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-sky-100 text-[#173B67]">${code}</span>
+                                    <span class="text-[10px] font-bold text-slate-800 truncate">${srv}</span>
+                                </div>
+                                <p class="text-[9px] text-slate-500">Customer: <strong class="text-slate-700">${cust}</strong> • ${time}</p>
+                                <div class="flex items-center gap-1.5 flex-wrap">
+                                    ${isReleased ? `
+                                        <span class="inline-flex items-center gap-1 text-[8.5px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                                            <i class="fa-solid fa-check-double text-[8px]"></i> Dana Diteruskan
+                                        </span>
+                                    ` : `
+                                        <span class="inline-flex items-center gap-1 text-[8.5px] font-bold text-sky-600 bg-sky-50 px-1.5 py-0.5 rounded border border-sky-200">
+                                            <i class="fa-solid fa-clock text-[8px]"></i> Selesai (Dana di Escrow)
+                                        </span>
+                                    `}
+                                </div>
+                            </div>
+                            <div class="text-right shrink-0">
+                                <span class="text-[8.5px] text-slate-400 block">Pendapatan</span>
+                                <strong class="text-xs font-black text-emerald-600 block">Rp ${nom.toLocaleString('id-ID')}</strong>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        // Update Ulasan dari Customer di Tab Dashboard
+        const dashUlasanContainer = document.getElementById('mitraDashboardUlasanList');
+        if (dashUlasanContainer) {
+            if (reviewedOrders.length === 0) {
+                dashUlasanContainer.innerHTML = `
+                    <div id="mitraDashboardEmptyUlasan" class="p-4 rounded-xl bg-slate-50 border border-dashed border-slate-200 text-center space-y-1">
+                        <i class="fa-solid fa-star text-slate-300 text-sm"></i>
+                        <p class="text-[10px] font-bold text-slate-600">Belum Ada Ulasan</p>
+                        <p class="text-[9px] text-slate-400">Ulasan dan rating dari customer akan muncul di sini setelah pekerjaan selesai.</p>
+                    </div>
+                `;
+            } else {
+                dashUlasanContainer.innerHTML = reviewedOrders.map(rev => {
+                    const cust = rev.customerName || rev.customer_name || 'Customer';
+                    const initial = cust.charAt(0).toUpperCase();
+                    const rating = parseInt(rev.review_rating, 10) || 5;
+                    const stars = '★'.repeat(rating) + '☆'.repeat(Math.max(0, 5 - rating));
+                    const comment = rev.review_comment ? rev.review_comment.trim() : '';
+                    const srv = rev.layanan || 'Suruhan';
+                    const dateStr = rev.reviewed_at ? new Date(rev.reviewed_at).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'}) : '';
+                    return `
+                        <div class="p-3 rounded-xl bg-amber-50/40 border border-amber-200/70 hover:border-amber-400 transition-all space-y-1.5">
+                            <div class="flex items-center justify-between gap-2">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 rounded-full bg-[#173B67] text-white text-[9px] font-bold flex items-center justify-center">
+                                        ${initial}
+                                    </div>
+                                    <strong class="text-[10px] font-bold text-slate-800">${cust}</strong>
+                                </div>
+                                <span class="text-amber-500 text-[10px] font-bold flex items-center gap-0.5">
+                                    <span>${stars}</span>
+                                    <span class="ml-1 text-[9px] text-slate-600 font-semibold">${rating.toFixed(1)}</span>
+                                </span>
+                            </div>
+                            ${comment ? `
+                                <p class="text-[10px] text-slate-700 italic bg-white/70 p-2 rounded-lg border border-amber-100/60 leading-relaxed">
+                                    "${comment}"
+                                </p>
+                            ` : ''}
+                            <div class="flex items-center justify-between text-[8.5px] text-slate-400">
+                                <span>${srv}</span>
+                                <span>${dateStr}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        // Update Halaman Lengkap Ulasan Saya
+        const fullUlasanList = document.getElementById('mitraFullUlasanList');
+        if (fullUlasanList && reviewedOrders.length > 0) {
+            fullUlasanList.innerHTML = reviewedOrders.map(rev => {
+                const cust = rev.customerName || rev.customer_name || 'Customer';
+                const rating = parseInt(rev.review_rating, 10) || 5;
+                const stars = '★'.repeat(rating) + '☆'.repeat(Math.max(0, 5 - rating));
+                const comment = rev.review_comment ? rev.review_comment.trim() : '';
+                const srv = rev.layanan || 'Suruhan';
+                const dateStr = rev.reviewed_at ? new Date(rev.reviewed_at).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'}) : '';
+                return `
+                    <article class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                        <div class="flex items-center justify-between gap-2">
+                            <strong class="text-[10px] font-bold text-slate-900">${cust}</strong>
+                            <span class="text-amber-500 text-[10px]">${stars}</span>
+                        </div>
+                        ${comment ? `<p class="text-[10px] text-slate-700">${comment}</p>` : ''}
+                        <span class="text-[9px] text-slate-500">${srv}${dateStr ? ' • ' + dateStr : ''}</span>
+                    </article>
+                `;
+            }).join('');
+        }
+
+        // Update Riwayat Transaksi di Tab Dompet
+        const dompetTrxList = document.getElementById('mitraTransactionList');
+        if (dompetTrxList && selesaiOrders.length > 0) {
+            dompetTrxList.innerHTML = selesaiOrders.map(o => {
+                const nom = o.mitra_fee || Math.round((parseInt(String(o.nominal || o.budget || o.biaya || '20000').replace(/[^0-9]/g, ''), 10) || 20000) * 0.9);
+                const isReleased = ['released_to_mitra', 'released'].includes(o.escrow_status);
+                const code = o.code || o.id || '#SB';
+                const cust = o.customerName || o.customer_name || 'Customer';
+                const srv = o.layanan || 'Suruhan';
+                const time = o.jadwal || (o.reviewed_at ? new Date(o.reviewed_at).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'}) : 'Selesai');
+                return `
+                    <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex items-start justify-between gap-2.5">
+                        <div class="space-y-1 min-w-0">
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-sky-100 text-[#173B67]">${code}</span>
+                                <span class="text-[10px] font-bold text-slate-800 truncate">${srv}</span>
+                            </div>
+                            <p class="text-[9px] text-slate-500">Customer: <strong class="text-slate-700">${cust}</strong> • ${time}</p>
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                ${isReleased ? `
+                                    <span class="inline-flex items-center gap-1 text-[8.5px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                                        <i class="fa-solid fa-check-double text-[8px]"></i> Dana Diteruskan
+                                    </span>
+                                ` : `
+                                    <span class="inline-flex items-center gap-1 text-[8.5px] font-bold text-sky-600 bg-sky-50 px-1.5 py-0.5 rounded border border-sky-200">
+                                        <i class="fa-solid fa-clock text-[8px]"></i> Selesai (Dana di Escrow)
+                                    </span>
+                                `}
+                            </div>
+                        </div>
+                        <div class="text-right shrink-0">
+                            <span class="text-[8.5px] text-slate-400 block">Pendapatan</span>
+                            <strong class="text-xs font-black text-emerald-600 block">Rp ${nom.toLocaleString('id-ID')}</strong>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
 
         // Toggle empty states in Tab Pekerjaan
         const emptyPen = document.getElementById('emptySectionPenawaran');

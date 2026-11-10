@@ -352,6 +352,28 @@
                 <span class="text-slate-500 font-medium">Total Tagihan:</span>
                 <strong class="text-base font-black text-[#173B67]">Rp {{ $totalBayar }}</strong>
             </div>
+
+            {{-- UPLOAD BUKTI PEMBAYARAN CUSTOMER --}}
+            <div class="space-y-1.5 pt-2 border-t border-slate-200">
+                <label class="block text-[10px] font-bold text-slate-800">
+                    Unggah Bukti Transfer / Pembayaran (Foto Struk / Screenshot)
+                </label>
+                <div class="p-3 rounded-xl bg-slate-50 border-2 border-dashed border-slate-300 hover:border-emerald-400 transition-colors text-center cursor-pointer relative" onclick="document.getElementById('inputBuktiBayarCustomer').click()">
+                    <input type="file" id="inputBuktiBayarCustomer" accept="image/*" onchange="previewBuktiBayarCustomer(this)" class="hidden">
+                    <div id="buktiBayarCustomerPlaceholder" class="space-y-1">
+                        <i class="fa-solid fa-cloud-arrow-up text-lg text-slate-400"></i>
+                        <p class="text-[10px] font-bold text-slate-700">Pilih Foto atau Tangkapan Layar</p>
+                        <p class="text-[8.5px] text-slate-400">Format JPG, PNG (Maks 5 MB)</p>
+                    </div>
+                    <div id="buktiBayarCustomerPreviewBox" class="hidden items-center justify-center gap-2.5">
+                        <img id="buktiBayarCustomerPreviewImg" src="" alt="Bukti Transfer" class="w-12 h-12 object-cover rounded-lg border border-slate-300">
+                        <div class="text-left">
+                            <span id="buktiBayarCustomerFileName" class="block text-[10px] font-bold text-slate-800 truncate max-w-[170px]">bukti-transfer.jpg</span>
+                            <span class="text-[9px] text-emerald-600 font-semibold"><i class="fa-solid fa-check"></i> Siap dikirim ke Admin</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </section>
 
         {{-- BADGE & TOMBOL: SAYA SUDAH MELAKUKAN PEMBAYARAN --}}
@@ -740,6 +762,30 @@
     }
     window.salinNomorInstruksi = salinNomorInstruksi;
 
+    let customerBuktiBayarDataUrl = null;
+    function previewBuktiBayarCustomer(input) {
+        if (!input.files || !input.files[0]) return;
+        const file = input.files[0];
+        const ph = document.getElementById('buktiBayarCustomerPlaceholder');
+        const box = document.getElementById('buktiBayarCustomerPreviewBox');
+        const img = document.getElementById('buktiBayarCustomerPreviewImg');
+        const name = document.getElementById('buktiBayarCustomerFileName');
+
+        if (name) name.textContent = file.name;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            customerBuktiBayarDataUrl = e.target.result;
+            if (img) img.src = e.target.result;
+            if (ph) ph.classList.add('hidden');
+            if (box) {
+                box.classList.remove('hidden');
+                box.classList.add('flex');
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+    window.previewBuktiBayarCustomer = previewBuktiBayarCustomer;
+
     // Tahap 3: Customer mengklik badge/tombol "Saya Sudah Melakukan Pembayaran"
     async function konfirmasiSudahBayarAction() {
         const kodeBersih = '{{ ltrim($kodePesanan ?? "", "#") }}';
@@ -765,7 +811,10 @@
                     'Accept': 'application/json',
                     'X-CSRF-TOKEN': csrfToken
                 },
-                body: JSON.stringify({ metode: labelMetode })
+                body: JSON.stringify({
+                    metode: labelMetode,
+                    bukti: customerBuktiBayarDataUrl || null
+                })
             });
             const data = await response.json();
             if (!response.ok || !data.success) {

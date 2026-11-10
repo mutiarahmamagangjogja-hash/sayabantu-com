@@ -770,6 +770,7 @@ class AdminRealtimeService
                     'platform_fee' => 'Rp 0',
                     'total_price' => 'Rp '.$dbOrder->biaya,
                     'payment_method' => $dbOrder->payment_method ?: 'Belum tercatat',
+                    'payment_proof' => $dbOrder->payment_proof,
                     'payment_time' => $dbOrder->payment_submitted_at?->format('d F Y • H.i') ?: 'Belum tercatat',
                     'payment_status' => $isRefunded ? 'dikembalikan' : ($isPaymentConfirmed ? 'terkonfirmasi' : 'menunggu'),
                     'payment_submitted' => $dbOrder->payment_submitted_at !== null,

@@ -11,6 +11,7 @@ use App\Models\Mitra;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Schema;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,7 +33,7 @@ Route::get('/', function () {
         session(['customer_phone' => $customerPhone]);
     }
 
-    $homeMitras = \Illuminate\Support\Facades\Schema::hasTable('mitras')
+    $homeMitras = Schema::hasTable('mitras')
         ? Mitra::query()
             ->whereIn('status', ['aktif', 'approved', 'disetujui'])
             ->withCount(['completedOrders', 'reviewedOrders'])
@@ -41,7 +42,7 @@ Route::get('/', function () {
             ->orderBy('name')
             ->get()
         : collect();
-    $latestReviews = \Illuminate\Support\Facades\Schema::hasTable('orders')
+    $latestReviews = Schema::hasTable('orders')
         ? Order::query()
             ->whereNotNull('review_rating')
             ->latest('reviewed_at')
@@ -68,7 +69,7 @@ Route::get('/customer/beranda', function () {
 });
 
 Route::get('/pengunjung', function () {
-    $homeMitras = \Illuminate\Support\Facades\Schema::hasTable('mitras')
+    $homeMitras = Schema::hasTable('mitras')
         ? Mitra::query()
             ->whereIn('status', ['aktif', 'approved', 'disetujui'])
             ->withCount(['completedOrders', 'reviewedOrders'])
@@ -77,7 +78,7 @@ Route::get('/pengunjung', function () {
             ->orderBy('name')
             ->get()
         : collect();
-    $latestReviews = \Illuminate\Support\Facades\Schema::hasTable('orders')
+    $latestReviews = Schema::hasTable('orders')
         ? Order::query()
             ->whereNotNull('review_rating')
             ->latest('reviewed_at')
@@ -874,7 +875,7 @@ Route::get('/mitra', function () {
 });
 
 Route::get('/mitra/dashboard', function (Request $request) {
-    if (! \Illuminate\Support\Facades\Schema::hasTable('mitras')) {
+    if (! Schema::hasTable('mitras')) {
         return redirect()->route('mitra.login');
     }
 
@@ -969,7 +970,33 @@ Route::get('/mitra/dashboard', function (Request $request) {
             ->loadAvg('reviewedOrders', 'review_rating');
     }
     $mitraReviews = $dbMitra
-        ? $dbMitra->reviewedOrders()->latest('reviewed_at')->limit(20)->get()
+        ? Order::whereNotNull('review_rating')
+            ->where(function ($q) use ($dbMitra) {
+                if ($dbMitra->mitra_id) {
+                    $q->where('mitra_id', $dbMitra->mitra_id);
+                }
+                if ($dbMitra->name) {
+                    $q->orWhere('mitra_name', $dbMitra->name);
+                }
+            })
+            ->latest('reviewed_at')
+            ->limit(20)
+            ->get()
+        : collect();
+
+    $mitraCompletedOrders = $dbMitra
+        ? Order::where('status', 'selesai')
+            ->where(function ($q) use ($dbMitra) {
+                if ($dbMitra->mitra_id) {
+                    $q->where('mitra_id', $dbMitra->mitra_id);
+                }
+                if ($dbMitra->name) {
+                    $q->orWhere('mitra_name', $dbMitra->name);
+                }
+            })
+            ->latest('updated_at')
+            ->limit(20)
+            ->get()
         : collect();
 
     $serverOrders = Order::whereNotIn('status', ['cancelled_by_customer', 'dibatalkan', 'cancelled_by_admin'])
@@ -1011,6 +1038,7 @@ Route::get('/mitra/dashboard', function (Request $request) {
         'saldoMitraHariIni' => $saldoMitraHariIni,
         'saldoMitraBulanIni' => $saldoMitraBulanIni,
         'mitraReviews' => $mitraReviews,
+        'mitraCompletedOrders' => $mitraCompletedOrders,
     ])->cookie('sb_mitra_logged_out', 'false', 525600);
 })->name('mitra.dashboard');
 

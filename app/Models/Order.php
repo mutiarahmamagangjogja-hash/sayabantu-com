@@ -34,6 +34,7 @@ class Order extends Model
         'escrow_hold_reason',
         'escrow_released_at',
         'payment_method',
+        'payment_proof',
         'payment_submitted_at',
         'payment_verified_at',
         'admin_fee',

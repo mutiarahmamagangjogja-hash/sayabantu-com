@@ -243,6 +243,7 @@ class AdminDashboardController extends Controller
                 'escrow_released_at' => $order->escrow_released_at ? $order->escrow_released_at->format('d M Y, H:i WIB') : null,
                 'payment_submitted_at' => $order->payment_submitted_at?->format('d M Y, H:i WIB'),
                 'payment_verified_at' => $order->payment_verified_at?->format('d M Y, H:i WIB'),
+                'payment_proof' => $order->payment_proof,
                 'waktu_bayar' => $order->payment_submitted_at?->format('d M Y, H:i WIB') ?: 'Belum tercatat',
                 'is_refunded' => $isRefund,
                 'payment_submitted' => $hasPaymentSubmission,
