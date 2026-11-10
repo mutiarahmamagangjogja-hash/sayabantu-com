@@ -294,7 +294,7 @@ $featuredColors = [
             </div>
         </div>
 
-        <form id="publicSuruhanForm" onsubmit="handleSuruhanSubmit(event)" class="text-xs">
+        <form id="publicSuruhanForm" novalidate onsubmit="handleSuruhanSubmit(event)" class="text-xs">
 
             {{-- ====================================================
                  LANGKAH 1: MENGISI DETAIL FORM SURUHAN
@@ -464,13 +464,12 @@ $featuredColors = [
                                 <input
                                     type="number"
                                     id="formDurasiAngka"
-                                    min="5"
+                                    min="1"
                                     max="720"
                                     value="1"
                                     oninput="syncPubDurasiInput()"
                                     class="w-full px-3 py-2 bg-white border border-amber-300 rounded-xl text-xs font-bold text-slate-800 focus:ring-2 focus:ring-[#173B67] focus:border-[#173B67] focus:outline-none transition-all"
                                     placeholder="Cth: 1"
-                                    required
                                 >
                                 <span class="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 font-semibold pointer-events-none">Durasi</span>
                             </div>
@@ -806,8 +805,9 @@ $featuredColors = [
                         <span>Kembali</span>
                     </button>
                     <button
-                        type="submit"
+                        type="button"
                         id="btnSubmitSuruhan"
+                        onclick="handleSuruhanSubmit(event)"
                         disabled
                         class="col-span-8 py-3 rounded-xl bg-slate-200 text-slate-400 font-extrabold text-xs shadow-none cursor-not-allowed flex items-center justify-center gap-2 pointer-events-none select-none transition-all"
                         title="Masuk akun Customer untuk mengajukan suruhan"
@@ -1388,6 +1388,10 @@ $featuredColors = [
 
         if (step === 3) {
             populatePubFormReview();
+            const chk = document.getElementById('checkTerms');
+            if (chk) {
+                toggleFormSubmit(chk.checked);
+            }
         }
 
         const card = document.getElementById('orderFormCard');
@@ -1479,7 +1483,18 @@ $featuredColors = [
 
     // Handle Form Submit (Requires Login Identity!)
     function handleSuruhanSubmit(e) {
-        e.preventDefault();
+        if (e && e.preventDefault) e.preventDefault();
+
+        const chk = document.getElementById('checkTerms');
+        if (chk && !chk.checked) {
+            if (typeof showCustomerToast === 'function') {
+                showCustomerToast('Persetujuan Diperlukan', 'Harap centang persetujuan syarat dan ketentuan terlebih dahulu.', 'warning');
+            } else {
+                alert('Harap centang persetujuan syarat dan ketentuan terlebih dahulu.');
+            }
+            if (chk.focus) chk.focus();
+            return;
+        }
 
         if (!isCustomerLoggedIn()) {
             let uFix = (typeof getCustomerAuth === 'function' ? getCustomerAuth() : null);

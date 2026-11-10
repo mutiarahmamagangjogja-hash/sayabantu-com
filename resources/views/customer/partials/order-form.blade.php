@@ -137,7 +137,7 @@
     </div>
 
     {{-- MAIN FORM --}}
-    <form id="custSuruhanForm" onsubmit="handleCustSuruhanSubmit(event)" class="text-xs">
+    <form id="custSuruhanForm" novalidate onsubmit="handleCustSuruhanSubmit(event)" class="text-xs">
 
         {{-- ====================================================
              LANGKAH 1: MENGISI DETAIL FORM SURUHAN
@@ -308,13 +308,12 @@
                             <input
                                 type="number"
                                 id="custFormDurasiAngka"
-                                min="5"
+                                min="1"
                                 max="720"
                                 value="1"
                                 oninput="syncCustDurasiInput()"
                                 class="w-full px-3 py-2 bg-white border border-amber-300 rounded-xl text-xs font-bold text-slate-800 focus:ring-2 focus:ring-[#173B67] focus:border-[#173B67] focus:outline-none transition-all"
                                 placeholder="Cth: 1"
-                                required
                             >
                             <span class="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 font-semibold pointer-events-none">Durasi</span>
                         </div>
@@ -628,8 +627,9 @@
                     <span>Kembali</span>
                 </button>
                 <button
-                    type="submit"
+                    type="button"
                     id="custBtnSubmitSuruhan"
+                    onclick="handleCustSuruhanSubmit(event)"
                     disabled
                     class="col-span-8 py-3 rounded-xl bg-[#0E1D31] text-white font-extrabold text-xs shadow-md opacity-50 cursor-not-allowed hover:bg-[#173B67] transition-all flex items-center justify-center gap-2"
                 >

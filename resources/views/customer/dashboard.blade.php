@@ -3496,6 +3496,10 @@
         // When entering Step 3, populate review fields
         if (step === 3) {
             populateCustFormReview();
+            const chk = document.getElementById('custCheckTerms');
+            if (chk) {
+                toggleCustFormSubmit(chk.checked);
+            }
         }
 
         // Scroll smoothly to form header
@@ -3630,16 +3634,29 @@
         if (checked) {
             btn.disabled = false;
             btn.classList.remove('opacity-50', 'cursor-not-allowed');
+            btn.classList.add('cursor-pointer');
         } else {
             btn.disabled = true;
             btn.classList.add('opacity-50', 'cursor-not-allowed');
+            btn.classList.remove('cursor-pointer');
         }
     }
     window.toggleCustFormSubmit = toggleCustFormSubmit;
 
     // Submit suruhan dari dashboard customer
     function handleCustSuruhanSubmit(e) {
-        e.preventDefault();
+        if (e && e.preventDefault) e.preventDefault();
+
+        const chk = document.getElementById('custCheckTerms');
+        if (chk && !chk.checked) {
+            if (typeof showCustomerToast === 'function') {
+                showCustomerToast('Persetujuan Diperlukan', 'Harap centang persetujuan syarat dan ketentuan terlebih dahulu.', 'warning');
+            } else {
+                alert('Harap centang persetujuan syarat dan ketentuan terlebih dahulu.');
+            }
+            if (chk.focus) chk.focus();
+            return;
+        }
 
         let user = (typeof getCustomerAuth === 'function') ? getCustomerAuth() : null;
         if (!user || !user.isLoggedIn || user.role !== 'customer') {
@@ -3720,11 +3737,13 @@
         const isTodayOrder = (tanggal === todayIso) || (tanggal.toLowerCase().includes('hari ini'));
 
         const postToServer = () => {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
             fetch('/api/orders', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Accept': 'application/json'
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
                 },
                 body: JSON.stringify(orderData)
             })
